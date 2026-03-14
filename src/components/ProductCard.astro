@@ -1,0 +1,31 @@
+---
+import type { Product } from '../lib/types';
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props as Props;
+---
+
+<article class="group overflow-hidden rounded-3xl border border-brand-line bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-premium">
+  <a href={`/produit/${product.slug}`} class="block">
+    <div class="overflow-hidden bg-brand-pearl">
+      <img src={product.images[0]} alt={product.name} class="aspect-[4/5] w-full object-cover transition duration-300 group-hover:scale-[1.02]" loading="lazy" />
+    </div>
+
+    <div class="p-5">
+      <div class="text-xs font-semibold uppercase tracking-brand text-brand-muted">{product.collection}</div>
+      <h3 class="mt-2 text-lg font-semibold text-brand-charcoal">{product.name}</h3>
+      <p class="mt-2 text-sm leading-7 text-brand-muted">{product.shortDescription}</p>
+
+      <div class="mt-4 flex items-end justify-between gap-4">
+        <div>
+          {product.oldPrice && <div class="text-sm text-brand-muted line-through">{product.oldPrice}</div>}
+          <div class="text-base font-semibold text-brand-charcoal">{product.price}</div>
+        </div>
+        <span class="text-sm font-medium text-brand-gold">Voir le detail</span>
+      </div>
+    </div>
+  </a>
+</article>

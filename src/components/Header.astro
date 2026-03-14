@@ -1,0 +1,51 @@
+---
+import { brandAssets, siteData } from '../data/site';
+
+const links = [
+  { href: '/', label: 'Accueil' },
+  { href: '/catalogue', label: 'Catalogue' },
+  { href: '/a-propos', label: 'A propos' },
+  { href: '/contact', label: 'Contact' }
+];
+---
+
+<header class="sticky top-0 z-50 border-b border-brand-line/80 bg-brand-bg/85 backdrop-blur">
+  <div class="container-shell flex h-20 items-center justify-between gap-6">
+    <a href="/" class="flex items-center gap-3">
+      <img src={brandAssets.logo} alt={`${siteData.brandName} logo`} class="h-12 w-12 rounded-full object-cover ring-1 ring-brand-gold/35" />
+      <div class="hidden sm:block">
+        <div class="text-sm font-semibold uppercase tracking-brand text-brand-charcoal">{siteData.brandName}</div>
+        <div class="text-xs text-brand-muted">{siteData.tagline}</div>
+      </div>
+    </a>
+
+    <nav class="hidden items-center gap-8 md:flex">
+      {links.map((link) => (
+        <a href={link.href} class="text-sm font-medium text-brand-muted hover:text-brand-charcoal">
+          {link.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <a href={siteData.primaryCTA.href} class="btn-primary hidden md:inline-flex">{siteData.primaryCTA.label}</a>
+      <details class="group md:hidden">
+        <summary class="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full border border-brand-line bg-white/70 text-brand-charcoal marker:content-none">
+          <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" stroke-width="1.8">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"></path>
+          </svg>
+        </summary>
+        <div class="absolute right-4 top-[4.8rem] w-64 rounded-3xl border border-brand-line bg-white/95 p-4 shadow-premium">
+          <div class="flex flex-col gap-2">
+            {links.map((link) => (
+              <a href={link.href} class="rounded-2xl px-3 py-2 text-sm font-medium text-brand-charcoal hover:bg-brand-bg">
+                {link.label}
+              </a>
+            ))}
+            <a href={siteData.primaryCTA.href} class="btn-primary mt-2 w-full">{siteData.primaryCTA.label}</a>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>

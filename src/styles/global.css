@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-brand-bg font-sans text-brand-ink antialiased;
+  }
+
+  ::selection {
+    @apply bg-brand-gold/40 text-brand-ink;
+  }
+
+  a,
+  button {
+    @apply transition duration-200;
+  }
+}
+
+@layer components {
+  .container-shell {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-shell {
+    @apply py-14 sm:py-20 lg:py-24;
+  }
+
+  .card-shell {
+    @apply rounded-3xl border border-brand-line bg-white/80 shadow-soft backdrop-blur;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-brand-charcoal px-6 py-3 text-sm font-semibold tracking-wide text-brand-gold shadow-premium hover:-translate-y-0.5 hover:bg-brand-ink;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-brand-gold/50 bg-white/70 px-6 py-3 text-sm font-semibold tracking-wide text-brand-charcoal hover:border-brand-gold hover:bg-white;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center rounded-full border border-brand-gold/40 bg-white/60 px-3 py-1 text-xs font-semibold uppercase tracking-brand text-brand-charcoal;
+  }
+
+  .section-title {
+    @apply text-3xl font-semibold tracking-tight text-brand-ink sm:text-4xl;
+  }
+
+  .section-copy {
+    @apply mt-3 max-w-2xl text-sm leading-7 text-brand-muted sm:text-base;
+  }
+
+  .link-muted {
+    @apply text-brand-muted hover:text-brand-charcoal;
+  }
+}

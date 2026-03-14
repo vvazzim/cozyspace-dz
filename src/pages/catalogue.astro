@@ -1,0 +1,75 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { categories } from '../data/categories';
+import { products } from '../data/products';
+---
+
+<MainLayout
+  title="Catalogue"
+  description="Catalogue leger et premium de demonstration pour Cozy Space, avec categories simples et fiches produit dynamiques."
+>
+  <section class="section-shell">
+    <div class="container-shell">
+      <SectionTitle
+        eyebrow="Catalogue"
+        title="Une grille propre, sans bruit inutile"
+        copy="Le catalogue reste volontairement simple : filtres par categorie, cartes lisibles, rendu rapide et experience mobile soignee."
+      />
+
+      <div class="mt-8 flex flex-wrap gap-3" id="filters">
+        <button class="rounded-full border border-brand-gold/40 bg-white px-4 py-2 text-sm font-medium text-brand-charcoal" data-filter="all">Tout voir</button>
+        {categories.map((category) => (
+          <button id={category.slug} class="rounded-full border border-brand-line bg-white/80 px-4 py-2 text-sm font-medium text-brand-muted hover:text-brand-charcoal" data-filter={category.name}>
+            {category.name}
+          </button>
+        ))}
+      </div>
+
+      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4" id="catalog-grid">
+        {products.map((product) => (
+          <div data-category={product.category}>
+            <ProductCard product={product} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll('[data-filter]'));
+    const items = Array.from(document.querySelectorAll('[data-category]'));
+
+    function setActive(button) {
+      buttons.forEach((btn) => {
+        btn.classList.remove('border-brand-gold/40', 'text-brand-charcoal');
+        btn.classList.add('border-brand-line', 'text-brand-muted');
+      });
+      button.classList.remove('border-brand-line', 'text-brand-muted');
+      button.classList.add('border-brand-gold/40', 'text-brand-charcoal');
+    }
+
+    function applyFilter(value) {
+      items.forEach((item) => {
+        const match = value === 'all' || item.getAttribute('data-category') === value;
+        item.style.display = match ? '' : 'none';
+      });
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const value = button.getAttribute('data-filter') || 'all';
+        setActive(button);
+        applyFilter(value);
+      });
+    });
+
+    const hash = window.location.hash.replace('#', '');
+    const initialButton = buttons.find((button) => button.id === hash);
+    if (initialButton) {
+      setActive(initialButton);
+      applyFilter(initialButton.getAttribute('data-filter') || 'all');
+    }
+  </script>
+</MainLayout>

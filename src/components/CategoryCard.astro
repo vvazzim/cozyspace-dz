@@ -1,0 +1,19 @@
+---
+import type { Category } from '../lib/types';
+
+interface Props {
+  category: Category;
+}
+
+const { category } = Astro.props as Props;
+---
+
+<a href={`/catalogue#${category.slug}`} class="group block overflow-hidden rounded-3xl border border-brand-line bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-premium">
+  <div class="overflow-hidden bg-brand-pearl">
+    <img src={category.image} alt={category.name} class="aspect-[5/4] w-full object-cover transition duration-300 group-hover:scale-[1.03]" loading="lazy" />
+  </div>
+  <div class="p-5">
+    <h3 class="text-xl font-semibold text-brand-charcoal">{category.name}</h3>
+    <p class="mt-2 text-sm leading-7 text-brand-muted">{category.description}</p>
+  </div>
+</a>

@@ -1,0 +1,85 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { products } from '../../data/products';
+
+export function getStaticPaths() {
+  return products.map((product) => ({
+    params: { slug: product.slug },
+    props: { product }
+  }));
+}
+
+const { product } = Astro.props;
+const similarProducts = products.filter((item) => item.category === product.category && item.slug !== product.slug).slice(0, 4);
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.name,
+  description: product.shortDescription,
+  image: product.images,
+  category: product.category,
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: 'DZD',
+    price: product.price.replace(/[^\d]/g, ''),
+    availability: 'https://schema.org/InStock'
+  }
+};
+---
+
+<MainLayout title={product.name} description={product.shortDescription} image={product.images[0]}>
+  <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
+
+  <section class="section-shell">
+    <div class="container-shell">
+      <div class="grid gap-10 lg:grid-cols-[1fr_0.95fr] lg:items-start">
+        <div class="card-shell overflow-hidden p-4 sm:p-6">
+          <img src={product.images[0]} alt={product.name} class="w-full rounded-[1.5rem] bg-brand-pearl object-cover" />
+        </div>
+
+        <div>
+          <div class="text-sm font-semibold uppercase tracking-brand text-brand-muted">{product.collection}</div>
+          <h1 class="mt-3 text-3xl font-semibold text-brand-charcoal sm:text-4xl">{product.name}</h1>
+          <p class="mt-4 text-sm leading-7 text-brand-muted sm:text-base">{product.shortDescription}</p>
+
+          <div class="mt-6 flex items-end gap-4">
+            <div class="text-2xl font-semibold text-brand-charcoal">{product.price}</div>
+            {product.oldPrice && <div class="text-sm text-brand-muted line-through">{product.oldPrice}</div>}
+          </div>
+
+          <div class="mt-6 rounded-3xl border border-brand-line bg-white p-5">
+            <div class="text-sm font-semibold text-brand-charcoal">Points forts</div>
+            <ul class="mt-4 grid gap-3 text-sm text-brand-muted">
+              {product.features.map((feature) => (
+                <li class="flex items-start gap-3">
+                  <span class="mt-1 h-2.5 w-2.5 rounded-full bg-brand-gold"></span>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="mt-6 rounded-3xl border border-brand-line bg-brand-bg p-5">
+            <div class="text-sm font-medium text-brand-charcoal">Disponibilite</div>
+            <p class="mt-2 text-sm leading-7 text-brand-muted">{product.availability}</p>
+          </div>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="/catalogue" class="btn-primary">Visiter la boutique</a>
+            <a href="/contact" class="btn-secondary">Contacter la marque</a>
+          </div>
+        </div>
+      </div>
+
+      {similarProducts.length > 0 && (
+        <div class="mt-20">
+          <h2 class="text-2xl font-semibold text-brand-charcoal">Produits similaires</h2>
+          <div class="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {similarProducts.map((item) => <ProductCard product={item} />)}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+</MainLayout>

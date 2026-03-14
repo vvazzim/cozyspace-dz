@@ -1,0 +1,75 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import Hero from '../components/Hero.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import CategoryCard from '../components/CategoryCard.astro';
+import ProductCard from '../components/ProductCard.astro';
+import TrustBadges from '../components/TrustBadges.astro';
+import CTASection from '../components/CTASection.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import { categories } from '../data/categories';
+import { featuredProducts } from '../data/products';
+import { siteData } from '../data/site';
+---
+
+<MainLayout title="Accueil" description={siteData.description}>
+  <Hero />
+
+  <section class="section-shell pt-2">
+    <div class="container-shell">
+      <SectionTitle
+        eyebrow="Categories"
+        title="Des selections utiles et faciles a parcourir"
+        copy="Le template reprend un univers doux, premium et modulable, inspire du logo et de la banniere fournis pour Cozy Space."
+      />
+
+      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {categories.map((category) => <CategoryCard category={category} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section-shell pt-4">
+    <div class="container-shell">
+      <SectionTitle
+        eyebrow="Selection coup de coeur"
+        title="Quelques produits demo dans l esprit Cozy Space"
+        copy="Des produits de demonstration coherents avec une boutique lifestyle, idees cadeaux et objets utiles du quotidien."
+      />
+
+      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {featuredProducts.slice(0, 4).map((product) => <ProductCard product={product} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section-shell pt-4">
+    <div class="container-shell">
+      <SectionTitle
+        eyebrow="Pourquoi choisir Cozy Space"
+        title="Une presentation sobre, rassurante et facilement evolutive"
+        copy="La structure reste legere, mobile first et centrale les contenus remplaçables pour permettre un rebranding ou une mise a jour rapide plus tard."
+      />
+      <div class="mt-10">
+        <TrustBadges />
+      </div>
+    </div>
+  </section>
+
+  <CTASection />
+
+  <section class="section-shell pt-0">
+    <div class="container-shell">
+      <div class="card-shell p-8 sm:p-10">
+        <SectionTitle
+          eyebrow="Restez connecte"
+          title="Instagram et TikTok comme canaux principaux"
+          copy="Les reseaux connus sont integres dans le site pour encourager la decouverte de la marque et une prise de contact sociale naturelle."
+        />
+        <div class="mt-8">
+          <SocialLinks />
+        </div>
+      </div>
+    </div>
+  </section>
+</MainLayout>

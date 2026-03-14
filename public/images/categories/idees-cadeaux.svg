@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="t d">
+<title id="t">Idees cadeaux</title><desc id="d">Une selection simple pour faire plaisir sans surcharger.</desc>
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F5F3EE"/><stop offset="100%" stop-color="#BFC8C9"/></linearGradient>
+<radialGradient id="glow" cx="85%" cy="15%" r="45%"><stop offset="0%" stop-color="#D8B96A" stop-opacity="0.35"/><stop offset="100%" stop-color="#D8B96A" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="1200" height="900" fill="url(#bg)"/>
+<rect width="1200" height="900" fill="url(#glow)"/>
+<rect x="72" y="72" width="1056" height="756" rx="40" fill="#ffffff" fill-opacity="0.45" stroke="#D8B96A" stroke-opacity="0.4"/>
+<circle cx="240" cy="240" r="110" fill="none" stroke="#D8B96A" stroke-width="14"/>
+<circle cx="960" cy="180" r="32" fill="#D8B96A" fill-opacity="0.25"/>
+<path d="M180 600 C320 480, 430 700, 600 580 S900 460, 1020 620" fill="none" stroke="#2E3236" stroke-opacity="0.2" stroke-width="14" stroke-linecap="round"/>
+<text x="96" y="520" fill="#2E3236" font-size="74" font-family="Inter, Arial, sans-serif" font-weight="700">Idees cadeaux</text>
+<text x="96" y="588" fill="#6D7278" font-size="30" font-family="Inter, Arial, sans-serif">Une selection simple pour faire plaisir sans surcharger.</text>
+</svg>

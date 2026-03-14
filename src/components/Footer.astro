@@ -1,0 +1,41 @@
+---
+import { brandAssets, siteData } from '../data/site';
+import SocialLinks from './SocialLinks.astro';
+---
+
+<footer class="mt-20 border-t border-brand-line bg-brand-charcoal">
+  <div class="container-shell py-12">
+    <div class="grid gap-10 md:grid-cols-[1.2fr_0.8fr_1fr]">
+      <div>
+        <div class="flex items-center gap-3">
+          <img src={brandAssets.logo} alt={`${siteData.brandName} logo`} class="h-12 w-12 rounded-full object-cover ring-1 ring-brand-gold/45" />
+          <div>
+            <div class="text-sm font-semibold uppercase tracking-brand text-brand-gold">{siteData.brandName}</div>
+            <div class="text-xs text-white/65">{siteData.tagline}</div>
+          </div>
+        </div>
+        <p class="mt-4 max-w-md text-sm leading-7 text-white/72">{siteData.description}</p>
+      </div>
+
+      <div>
+        <div class="text-sm font-semibold uppercase tracking-brand text-white">Navigation</div>
+        <div class="mt-4 flex flex-col gap-2 text-sm">
+          <a href="/" class="text-white/72 hover:text-brand-gold">Accueil</a>
+          <a href="/catalogue" class="text-white/72 hover:text-brand-gold">Catalogue</a>
+          <a href="/a-propos" class="text-white/72 hover:text-brand-gold">A propos</a>
+          <a href="/contact" class="text-white/72 hover:text-brand-gold">Contact</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="text-sm font-semibold uppercase tracking-brand text-white">Reseaux sociaux</div>
+        <div class="mt-4">
+          <SocialLinks inverted compact />
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 h-px w-full bg-gradient-to-r from-transparent via-brand-gold/60 to-transparent"></div>
+    <p class="mt-6 text-xs text-white/50">© 2025 {siteData.brandName}. Base vitrine rebrandee et facilement editable.</p>
+  </div>
+</footer>

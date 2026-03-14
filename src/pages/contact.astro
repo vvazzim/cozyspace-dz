@@ -1,0 +1,45 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import FAQ from '../components/FAQ.astro';
+import { faqItems, siteData } from '../data/site';
+---
+
+<MainLayout title="Contact" description="Contactez Cozy Space via les reseaux sociaux et consultez une FAQ simple et utile.">
+  <section class="section-shell">
+    <div class="container-shell">
+      <div class="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+        <div class="card-shell p-8 sm:p-10">
+          <SectionTitle
+            eyebrow="Contact"
+            title="Le canal principal passe par les reseaux sociaux"
+            copy="Aucune coordonnee definitive supplementaire n ayant ete fournie, le site met en avant les liens sociaux connus de la marque pour garder une presentation propre et coherente."
+          />
+
+          <div class="mt-8">
+            <SocialLinks />
+          </div>
+
+          <div class="mt-8 rounded-3xl border border-brand-line bg-brand-bg p-5">
+            <p class="text-sm leading-7 text-brand-muted">
+              CTA principal actuel : <span class="font-medium text-brand-charcoal">{siteData.primaryCTA.label}</span>
+            </p>
+            <a href={siteData.primaryCTA.href} class="btn-primary mt-4">{siteData.primaryCTA.label}</a>
+          </div>
+        </div>
+
+        <div>
+          <SectionTitle
+            eyebrow="FAQ"
+            title="Quelques reponses utiles"
+            copy="Une base courte pour rester claire et rassurante sans inventer de conditions, de delais ou de policies non confirmes."
+          />
+          <div class="mt-8">
+            <FAQ items={faqItems} />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</MainLayout>

@@ -1,0 +1,41 @@
+---
+import { brandAssets, siteData } from '../data/site';
+import SocialLinks from './SocialLinks.astro';
+---
+
+<section class="section-shell pt-8 sm:pt-12">
+  <div class="container-shell">
+    <div class="relative overflow-hidden rounded-[2rem] bg-cozy-hero shadow-premium">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(216,185,106,.22),transparent_22%)]"></div>
+      <div class="relative grid items-center gap-8 px-6 py-8 sm:px-10 sm:py-12 lg:grid-cols-[0.9fr_1.1fr] lg:px-14 lg:py-16">
+        <div class="flex justify-center lg:justify-start">
+          <div class="rounded-[2rem] border border-white/30 bg-white/15 p-4 backdrop-blur-sm">
+            <img src={brandAssets.logo} alt={`${siteData.brandName} logo`} class="h-56 w-56 rounded-full object-cover sm:h-72 sm:w-72 lg:h-[22rem] lg:w-[22rem]" />
+          </div>
+        </div>
+
+        <div class="max-w-2xl">
+          {siteData.heroBadge && <span class="eyebrow border-white/20 bg-white/10 text-white">{siteData.heroBadge}</span>}
+          <h1 class="mt-4 text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+            {siteData.brandName}
+          </h1>
+          <p class="mt-4 text-base font-medium uppercase tracking-[0.08em] text-brand-gold sm:text-lg">
+            {siteData.tagline}
+          </p>
+          <p class="mt-5 max-w-xl text-sm leading-7 text-white/80 sm:text-base">
+            Des produits utiles, doux et bien presentes pour le quotidien, les idees cadeaux et les petits essentiels qu on aime garder pres de soi.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href={siteData.primaryCTA.href} class="btn-primary">{siteData.primaryCTA.label}</a>
+            <a href={siteData.secondaryCTA.href} class="btn-secondary">{siteData.secondaryCTA.label}</a>
+          </div>
+          <div class="mt-8">
+            <SocialLinks inverted />
+          </div>
+        </div>
+      </div>
+
+      
+    </div>
+  </div>
+</section>

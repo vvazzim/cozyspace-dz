@@ -1,0 +1,29 @@
+---
+import { siteData } from '../data/site';
+
+interface Props {
+  title?: string;
+  copy?: string;
+}
+
+const {
+  title = 'Une boutique pensee pour le quotidien et les idees cadeaux',
+  copy = 'Parcourez une selection demo claire, legere et facile a rebrand. Le site reste volontairement simple, premium et evolutif.'
+} = Astro.props as Props;
+---
+
+<section class="section-shell pt-0">
+  <div class="container-shell">
+    <div class="overflow-hidden rounded-[2rem] border border-brand-gold/30 bg-brand-charcoal px-6 py-10 shadow-premium sm:px-10">
+      <div class="max-w-3xl">
+        <span class="eyebrow border-white/15 bg-white/10 text-white">Cozy Space</span>
+        <h2 class="mt-4 text-3xl font-semibold text-white sm:text-4xl">{title}</h2>
+        <p class="mt-4 max-w-2xl text-sm leading-7 text-white/75 sm:text-base">{copy}</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={siteData.primaryCTA.href} class="btn-primary">{siteData.primaryCTA.label}</a>
+          <a href="/contact" class="btn-secondary">Contacter la marque</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,17 @@
+---
+import { siteData } from '../data/site';
+---
+
+<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+  {siteData.trustItems.map((item) => (
+    <article class="card-shell p-5">
+      <div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-gold/15 text-brand-gold">
+        <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" stroke-width="1.8">
+          <path d="M12 3l2.8 5.7L21 9.6l-4.5 4.4 1.1 6.3L12 17.3 6.4 20.3 7.5 14 3 9.6l6.2-.9L12 3Z" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-brand-charcoal">{item.title}</h3>
+      <p class="mt-2 text-sm leading-7 text-brand-muted">{item.description}</p>
+    </article>
+  ))}
+</div>
