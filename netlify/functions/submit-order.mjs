@@ -1,21 +1,23 @@
-export default async (request, context) => {
-  if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ success: false, message: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'content-type': 'application/json' }
-    });
+export const handler = async (event) => {
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ success: false, message: 'Method not allowed' })
+    };
   }
 
   try {
-    const payload = await request.json();
+    const payload = JSON.parse(event.body || '{}');
     const googleScriptUrl =
       process.env.GOOGLE_SCRIPT_URL || process.env.PUBLIC_GOOGLE_SCRIPT_URL || '';
 
     if (!googleScriptUrl) {
-      return new Response(JSON.stringify({ success: false, message: 'Missing GOOGLE_SCRIPT_URL' }), {
-        status: 500,
-        headers: { 'content-type': 'application/json' }
-      });
+      return {
+        statusCode: 500,
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ success: false, message: 'Missing GOOGLE_SCRIPT_URL' })
+      };
     }
 
     const params = new URLSearchParams();
@@ -28,20 +30,19 @@ export default async (request, context) => {
       redirect: 'follow'
     });
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { 'content-type': 'application/json' }
-    });
+    return {
+      statusCode: 200,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ success: true })
+    };
   } catch (error) {
-    return new Response(
-      JSON.stringify({
+    return {
+      statusCode: 500,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
         success: false,
         message: error instanceof Error ? error.message : 'Unknown error'
-      }),
-      {
-        status: 500,
-        headers: { 'content-type': 'application/json' }
-      }
-    );
+      })
+    };
   }
 };

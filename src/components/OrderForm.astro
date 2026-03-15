@@ -101,6 +101,7 @@ const submitUrl = '/.netlify/functions/submit-order';
         <div class="flex gap-3 pt-4">
           <button
             type="submit"
+            data-submit-label={labels.submit}
             class="flex-1 rounded-full bg-brand-charcoal px-6 py-3 text-sm font-semibold text-white hover:bg-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2"
           >
             {labels.submit}
@@ -180,6 +181,10 @@ const submitUrl = '/.netlify/functions/submit-order';
       }
 
       submitButton.setAttribute('disabled', 'disabled');
+      submitButton.textContent = 'Envoi...';
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
 
       const response = await fetch(form.action, {
         method: 'POST',
@@ -187,8 +192,11 @@ const submitUrl = '/.netlify/functions/submit-order';
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(Object.fromEntries(params.entries())),
-        cache: 'no-store'
+        cache: 'no-store',
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -197,6 +205,7 @@ const submitUrl = '/.netlify/functions/submit-order';
       successMessage.classList.remove('hidden');
       errorMessage.classList.add('hidden');
       submitButton.removeAttribute('disabled');
+      submitButton.textContent = form.getAttribute('data-submit-label') || 'Commander';
 
       setTimeout(() => {
         closeModal();
@@ -204,6 +213,7 @@ const submitUrl = '/.netlify/functions/submit-order';
     } catch (error) {
       console.error('Erreur:', error);
       submitButton.removeAttribute('disabled');
+      submitButton.textContent = form.getAttribute('data-submit-label') || 'Commander';
       successMessage.classList.add('hidden');
       errorMessage.classList.remove('hidden');
     }
