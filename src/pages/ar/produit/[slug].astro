@@ -93,8 +93,14 @@ const schema = {
           <p class="mt-4 text-sm leading-7 text-brand-muted sm:text-base">{description}</p>
 
           <div class="mt-6 flex items-end gap-4">
-            <div class="text-2xl font-semibold text-brand-charcoal">{product.price}</div>
-            {product.oldPrice && <div class="text-sm text-brand-muted line-through">{product.oldPrice}</div>}
+            <div dir="ltr" class="inline-block whitespace-nowrap text-2xl font-semibold text-brand-charcoal">
+              {product.price}
+            </div>
+            {product.oldPrice && (
+              <div dir="ltr" class="inline-block whitespace-nowrap text-sm text-brand-muted line-through">
+                {product.oldPrice}
+              </div>
+            )}
           </div>
 
           <div class="mt-6 rounded-3xl border border-brand-line bg-white p-5">

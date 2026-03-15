@@ -1,18 +1,13 @@
 // Google Apps Script pour recevoir les commandes et les ajouter au Google Sheet
-// À déployer comme Web App avec les permissions suivantes :
+// A deployer comme Web App avec les permissions suivantes :
 // - Execute: Anyone
-// - Access: Anyone (ou Anyone with Google account si vous voulez restreindre)
+// - Access: Anyone
 
-// NOTE: N'oubliez pas de remplacer `YOUR_SPREADSHEET_ID` par l'ID réel de votre feuille
-// de calcul (visible dans l'URL du Sheet), et non l'ID de déploiement du script.
-
-/**
- * Pour les tests manuels dans l'éditeur Apps Script, on expose doGet.
- * Il ne doit pas utiliser de méthodes non supportées (setHeaders).
- */
 function doGet(e) {
-  // Dans notre implémentation client, on envoie les données en GET (query string)
-  // pour contourner les limitations CORS de Google Apps Script.
+  return handleOrderRequest(e);
+}
+
+function doPost(e) {
   return handleOrderRequest(e);
 }
 
@@ -24,8 +19,7 @@ function handleOrderRequest(e) {
     Logger.log('e.queryString: %s', (e && e.queryString) || '');
     Logger.log('e.postData: %s', JSON.stringify((e && e.postData) || {}));
 
-    // Le payload peut être envoyé en JSON (POST), en form-urlencoded, ou en query string (GET).
-    let data = {};
+    var data = {};
 
     if (e && e.postData && e.postData.contents) {
       try {
@@ -37,19 +31,16 @@ function handleOrderRequest(e) {
     }
 
     if (e && e.parameter && Object.keys(e.parameter).length) {
-      data = { ...data, ...e.parameter };
+      data = Object.assign({}, data, e.parameter);
     }
 
     Logger.log('Order data received: %s', JSON.stringify(data));
 
-    // ID de votre Google Sheet (visible dans l'URL du Sheet)
-    // Exemple : https://docs.google.com/spreadsheets/d/<ID>/edit
-    const spreadsheetId = 'YOUR_SPREADSHEET_ID';
+    var spreadsheetId = '1Do4iJU8TdtvwmODoH_ypc1xdrZTouUCxhOxVQTJK_do';
+    var sheet = SpreadsheetApp.openById(spreadsheetId).getSheets()[0];
 
-    const sheet = SpreadsheetApp.openById(spreadsheetId).getSheets()[0];
-
-    const rowData = [
-      new Date(), // Timestamp
+    var rowData = [
+      new Date(),
       data.firstName || 'N/A',
       data.lastName || 'N/A',
       data.phone || 'N/A',
@@ -61,20 +52,18 @@ function handleOrderRequest(e) {
     ];
 
     sheet.appendRow(rowData);
-    Logger.log('Commande ajoutée au Sheet. ID sheet: %s', spreadsheetId);
+    Logger.log('Commande ajoutee au Sheet. ID sheet: %s', spreadsheetId);
 
     return ContentService
-      .createTextOutput(JSON.stringify({ success: true, message: 'Commande enregistrée' }))
+      .createTextOutput(JSON.stringify({ success: true, message: 'Commande enregistree' }))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
+    Logger.log('Erreur handleOrderRequest: %s', error.toString());
+
     return ContentService
       .createTextOutput(JSON.stringify({ success: false, message: error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
   }
-}
-
-function doPost(e) {
-  return handleOrderRequest(e);
 }
 
 function parseFormEncodedPayload_(payload) {
@@ -95,9 +84,8 @@ function parseFormEncodedPayload_(payload) {
   }, {});
 }
 
-// Fonction de test (optionnelle)
 function testScript() {
-  const testData = {
+  var testData = {
     firstName: 'Test',
     lastName: 'User',
     phone: '0123456789',
@@ -108,12 +96,12 @@ function testScript() {
     address: '123 Test Street'
   };
 
-  const e = {
+  var e = {
     postData: {
       contents: JSON.stringify(testData)
     }
   };
 
-  const result = doPost(e);
+  var result = doPost(e);
   Logger.log(result.getContent());
 }

@@ -11,9 +11,7 @@ interface Props {
 
 const { productName, productSlug, productPrice = '', embedded = false, locale = 'fr' } = Astro.props;
 const labels = uiText[locale].order;
-const googleScriptUrl =
-  import.meta.env.PUBLIC_GOOGLE_SCRIPT_URL ||
-  'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+const submitUrl = '/.netlify/functions/submit-order';
 ---
 
 <div
@@ -36,13 +34,7 @@ const googleScriptUrl =
         )}
       </div>
 
-      <form
-        id="order-form"
-        action={googleScriptUrl}
-        method="GET"
-        target="order-submit-frame"
-        class="mt-6 space-y-4"
-      >
+      <form id="order-form" action={submitUrl} method="POST" class="mt-6 space-y-4">
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
             <label for="firstName" class="block text-sm font-medium text-brand-charcoal">{labels.firstName}</label>
@@ -137,8 +129,6 @@ const googleScriptUrl =
   </div>
 </div>
 
-<iframe name="order-submit-frame" class="hidden" title="Soumission de commande"></iframe>
-
 <script>
   const modal = document.getElementById('order-modal');
   const closeBtn = document.getElementById('close-modal');
@@ -182,8 +172,28 @@ const googleScriptUrl =
     if (!form || !successMessage || !errorMessage || !submitButton) return;
 
     try {
+      const formData = new FormData(form);
+      const params = new URLSearchParams();
+
+      for (const [key, value] of formData.entries()) {
+        params.append(key, String(value));
+      }
+
       submitButton.setAttribute('disabled', 'disabled');
-      form.submit();
+
+      const response = await fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(Object.fromEntries(params.entries())),
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
       successMessage.classList.remove('hidden');
       errorMessage.classList.add('hidden');
       submitButton.removeAttribute('disabled');

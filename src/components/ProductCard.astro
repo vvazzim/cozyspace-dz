@@ -49,8 +49,14 @@ const imageAlt = locale === 'ar' ? product.nameAr || product.name : product.name
 
       <div class="mt-4 flex items-end justify-between gap-4">
         <div>
-          {product.oldPrice && <div class="text-sm text-brand-muted line-through">{product.oldPrice}</div>}
-          <div class="text-base font-semibold text-brand-charcoal">{product.price}</div>
+          {product.oldPrice && (
+            <div dir="ltr" class="inline-block whitespace-nowrap text-sm text-brand-muted line-through">
+              {product.oldPrice}
+            </div>
+          )}
+          <div dir="ltr" class="inline-block whitespace-nowrap text-base font-semibold text-brand-charcoal">
+            {product.price}
+          </div>
         </div>
         <span class="text-sm font-medium text-brand-gold">{detailLabel}</span>
       </div>
