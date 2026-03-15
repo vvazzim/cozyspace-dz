@@ -1,6 +1,7 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
+import SocialLinks from '../components/SocialLinks.astro';
 import FAQ from '../components/FAQ.astro';
 import { faqItems, siteData } from '../data/site';
 ---
@@ -15,6 +16,10 @@ import { faqItems, siteData } from '../data/site';
             title="Une page simple pour vous orienter"
             copy="Si vous souhaitez commander ou demander un complement d information, commencez par le catalogue puis utilisez la fiche produit adaptee."
           />
+
+          <div class="mt-8">
+            <SocialLinks />
+          </div>
 
           <div class="mt-8 rounded-3xl border border-brand-line bg-brand-bg p-5">
             <p class="text-sm leading-7 text-brand-muted">

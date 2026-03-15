@@ -1,6 +1,7 @@
 ---
 import { brandAssets } from '../data/site';
 import { getSiteData, type Locale, uiText, withLocalePath } from '../lib/i18n';
+import SocialLinks from './SocialLinks.astro';
 
 interface Props {
   locale?: Locale;
@@ -12,7 +13,7 @@ const siteData = getSiteData(locale);
 
 <footer class="mt-20 border-t border-brand-line bg-brand-charcoal">
   <div class="container-shell py-12">
-    <div class="grid gap-10 md:grid-cols-[1.2fr_0.8fr]">
+    <div class="grid gap-10 md:grid-cols-[1.2fr_0.8fr_1fr]">
       <div>
         <div class="flex items-center gap-3">
           <img src={brandAssets.logo} alt={`${siteData.brandName} logo`} class="h-12 w-12 rounded-full object-cover ring-1 ring-brand-gold/45" />
@@ -31,6 +32,13 @@ const siteData = getSiteData(locale);
           <a href={withLocalePath('/catalogue', locale)} class="text-white hover:text-brand-gold">{uiText[locale].nav.catalogue}</a>
           <a href={withLocalePath('/a-propos', locale)} class="text-white hover:text-brand-gold">{uiText[locale].nav.about}</a>
           <a href={withLocalePath('/contact', locale)} class="text-white hover:text-brand-gold">{uiText[locale].nav.contact}</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="text-sm font-semibold uppercase tracking-brand text-white">Reseaux sociaux</div>
+        <div class="mt-4">
+          <SocialLinks compact inverted />
         </div>
       </div>
     </div>
