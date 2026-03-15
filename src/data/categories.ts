@@ -19,7 +19,9 @@ export const categories: Category[] = [
     id: 'accessoires-du-quotidien',
     slug: 'accessoires-du-quotidien',
     name: 'Accessoires du quotidien',
+    nameAr: 'اكسسوارات يومية',
     description: 'Des pieces utiles, discretes et faciles a offrir ou a garder pour soi.',
+    descriptionAr: 'قطع عملية وأنيقة وسهلة للاستخدام اليومي أو للتقديم كهدية.',
     image: '/images/categories/accessoires-du-quotidien.svg'
   },
   // {

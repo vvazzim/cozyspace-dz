@@ -1,0 +1,50 @@
+---
+import type { Locale } from '../lib/i18n';
+
+interface Props {
+  locale?: Locale;
+}
+
+const { locale = 'fr' } = Astro.props as Props;
+---
+
+<div class="fixed right-4 top-1/2 z-50 -translate-y-1/2">
+  <div class="flex flex-col overflow-hidden rounded-2xl border border-brand-line bg-white/95 shadow-premium backdrop-blur">
+    <a
+      id="lang-switch-fr"
+      href="/"
+      class:list={[
+        'px-4 py-3 text-center text-sm font-semibold',
+        locale === 'fr' ? 'bg-brand-charcoal text-white' : 'text-brand-charcoal hover:bg-brand-bg'
+      ]}
+    >
+      FR
+    </a>
+    <a
+      id="lang-switch-ar"
+      href="/ar"
+      class:list={[
+        'border-t border-brand-line px-4 py-3 text-center text-sm font-semibold',
+        locale === 'ar' ? 'bg-brand-charcoal text-white' : 'text-brand-charcoal hover:bg-brand-bg'
+      ]}
+    >
+      AR
+    </a>
+  </div>
+</div>
+
+<script>
+  const frLink = document.getElementById('lang-switch-fr');
+  const arLink = document.getElementById('lang-switch-ar');
+
+  if (frLink && arLink) {
+    const pathname = window.location.pathname;
+    const suffix = `${window.location.search}${window.location.hash}`;
+    const frPath =
+      pathname === '/ar' ? '/' : pathname.startsWith('/ar/') ? pathname.slice(3) : pathname;
+    const arPath = pathname === '/' ? '/ar' : pathname.startsWith('/ar') ? pathname : `/ar${pathname}`;
+
+    frLink.setAttribute('href', `${frPath}${suffix}`);
+    arLink.setAttribute('href', `${arPath}${suffix}`);
+  }
+</script>

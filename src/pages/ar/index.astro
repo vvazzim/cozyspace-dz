@@ -1,0 +1,76 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import Hero from '../../components/Hero.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+import CategoryCard from '../../components/CategoryCard.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import TrustBadges from '../../components/TrustBadges.astro';
+import CTASection from '../../components/CTASection.astro';
+import { categories } from '../../data/categories';
+import { featuredProducts } from '../../data/products';
+import { getSiteData } from '../../lib/i18n';
+
+const siteData = getSiteData('ar');
+---
+
+<MainLayout locale="ar" title="الرئيسية" description={siteData.description}>
+  <Hero
+    locale="ar"
+    descriptionText="منتجات عملية ومرتبة بعناية للحياة اليومية، للهدايا، وللتفاصيل الصغيرة التي تمنح البيت لمسة أجمل."
+  />
+
+  <section class="section-shell pt-2">
+    <div class="container-shell">
+      <SectionTitle
+        eyebrow="الفئات"
+        title="مرايا مضيئة بتصميم راق"
+        copy="اكتشف تشكيلتنا من المرايا المضيئة بإضاءة LED المدمجة، بتفاصيل عملية وأناقة تناسب مختلف المساحات."
+      />
+
+      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {categories.map((category) => <CategoryCard category={category} locale="ar" basePath="/ar" />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section-shell pt-4">
+    <div class="container-shell">
+      <SectionTitle
+        eyebrow="مختاراتنا"
+        title="منتجات مختارة من روح Cozy Space"
+        copy="تشكيلة بسيطة وأنيقة من المنتجات اليومية التي تجمع بين الاستعمال العملي واللمسة الجمالية."
+      />
+
+      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {featuredProducts.slice(0, 4).map((product) => (
+          <ProductCard
+            product={product}
+            locale="ar"
+            basePath="/ar"
+            detailLabel="عرض التفاصيل"
+            colorsLabel="الألوان"
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section-shell pt-4">
+    <div class="container-shell">
+      <SectionTitle
+        eyebrow="لماذا Cozy Space"
+        title="تجربة هادئة وسهلة وواضحة"
+        copy="واجهة بسيطة ومريحة على الهاتف والكمبيوتر، مع إمكانية تطوير المتجر وإضافة منتجات جديدة بسهولة."
+      />
+      <div class="mt-10">
+        <TrustBadges locale="ar" />
+      </div>
+    </div>
+  </section>
+
+  <CTASection
+    locale="ar"
+    title="منتجات يومية بلمسة أنيقة"
+    copy="تصفح المجموعة الحالية واترك طلبك بسهولة، مع واجهة واضحة وسريعة ومناسبة لكل الشاشات."
+  />
+</MainLayout>

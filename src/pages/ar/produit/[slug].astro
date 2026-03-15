@@ -1,8 +1,8 @@
 ---
-import MainLayout from '../../layouts/MainLayout.astro';
-import ProductCard from '../../components/ProductCard.astro';
-import OrderForm from '../../components/OrderForm.astro';
-import { products } from '../../data/products';
+import MainLayout from '../../../layouts/MainLayout.astro';
+import ProductCard from '../../../components/ProductCard.astro';
+import OrderForm from '../../../components/OrderForm.astro';
+import { products } from '../../../data/products';
 
 export function getStaticPaths() {
   return products.map((product) => ({
@@ -12,7 +12,12 @@ export function getStaticPaths() {
 }
 
 const { product } = Astro.props;
-const displayName = product.baseName || product.name;
+const displayName = product.baseNameAr || product.baseName || product.nameAr || product.name;
+const productName = product.nameAr || product.name;
+const collection = product.collectionAr || product.collection;
+const description = product.shortDescriptionAr || product.shortDescription;
+const availability = product.availabilityAr || product.availability;
+const features = product.featuresAr || product.features;
 const variants = products.filter((item) =>
   product.variantGroup ? item.variantGroup === product.variantGroup : item.slug === product.slug
 );
@@ -32,7 +37,7 @@ const schema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: displayName,
-  description: product.shortDescription,
+  description,
   image: product.images,
   category: product.category,
   offers: {
@@ -44,32 +49,32 @@ const schema = {
 };
 ---
 
-<MainLayout title={product.name} description={product.shortDescription} image={product.images[0]}>
+<MainLayout locale="ar" title={displayName} description={description} image={product.images[0]}>
   <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
 
   <section class="section-shell">
     <div class="container-shell">
       <div class="mb-8">
-        <div class="text-sm font-semibold uppercase tracking-brand text-brand-muted">{product.collection}</div>
+        <div class="text-sm font-semibold uppercase tracking-brand text-brand-muted">{collection}</div>
         <h1 class="mt-3 text-3xl font-semibold text-brand-charcoal sm:text-5xl">{displayName}</h1>
       </div>
 
       <div class="grid gap-10 lg:grid-cols-[1fr_0.95fr] lg:items-start">
         <div class="card-shell overflow-hidden p-4 sm:p-6">
-          <img src={product.images[0]} alt={product.name} class="w-full rounded-[1.5rem] bg-brand-pearl object-cover" />
+          <img src={product.images[0]} alt={productName} class="w-full rounded-[1.5rem] bg-brand-pearl object-cover" />
         </div>
 
         <div>
           {variants.length > 1 && (
             <div class="rounded-3xl border border-brand-line bg-white p-5">
-              <div class="text-sm font-semibold text-brand-charcoal">Couleur</div>
+              <div class="text-sm font-semibold text-brand-charcoal">اللون</div>
               <div class="mt-4 flex flex-wrap gap-3">
                 {variants.map((variant) => {
                   const isActive = variant.slug === product.slug;
 
                   return (
                     <a
-                      href={`/produit/${variant.slug}`}
+                      href={`/ar/produit/${variant.slug}`}
                       class:list={[
                         'rounded-full border px-4 py-2 text-sm font-semibold transition',
                         isActive
@@ -77,7 +82,7 @@ const schema = {
                           : 'border-brand-line bg-white text-brand-charcoal hover:border-brand-gold'
                       ]}
                     >
-                      {variant.color || variant.name}
+                      {variant.colorAr || variant.color || variant.nameAr || variant.name}
                     </a>
                   );
                 })}
@@ -85,7 +90,7 @@ const schema = {
             </div>
           )}
 
-          <p class="mt-4 text-sm leading-7 text-brand-muted sm:text-base">{product.shortDescription}</p>
+          <p class="mt-4 text-sm leading-7 text-brand-muted sm:text-base">{description}</p>
 
           <div class="mt-6 flex items-end gap-4">
             <div class="text-2xl font-semibold text-brand-charcoal">{product.price}</div>
@@ -93,9 +98,9 @@ const schema = {
           </div>
 
           <div class="mt-6 rounded-3xl border border-brand-line bg-white p-5">
-            <div class="text-sm font-semibold text-brand-charcoal">Points forts</div>
+            <div class="text-sm font-semibold text-brand-charcoal">المميزات</div>
             <ul class="mt-4 grid gap-3 text-sm text-brand-muted">
-              {product.features.map((feature) => (
+              {features.map((feature) => (
                 <li class="flex items-start gap-3">
                   <span class="mt-1 h-2.5 w-2.5 rounded-full bg-brand-gold"></span>
                   <span>{feature}</span>
@@ -105,33 +110,41 @@ const schema = {
           </div>
 
           <div class="mt-6 rounded-3xl border border-brand-line bg-brand-bg p-5">
-            <div class="text-sm font-medium text-brand-charcoal">Disponibilite</div>
-            <p class="mt-2 text-sm leading-7 text-brand-muted">{product.availability}</p>
+            <div class="text-sm font-medium text-brand-charcoal">التوفر</div>
+            <p class="mt-2 text-sm leading-7 text-brand-muted">{availability}</p>
           </div>
 
           <div class="mt-8 flex flex-wrap gap-3">
-            <a href="/catalogue" class="btn-secondary">Visiter la boutique</a>
-            <a href="/contact" class="btn-secondary">Contacter la marque</a>
+            <a href="/ar/catalogue" class="btn-secondary">زيارة المتجر</a>
+            <a href="/ar/contact" class="btn-secondary">تواصل مع العلامة</a>
           </div>
 
           <OrderForm
-            productName={product.name}
+            productName={productName}
             productSlug={product.slug}
             productPrice={product.price}
             embedded={true}
+            locale="ar"
           />
         </div>
       </div>
 
       {similarProducts.length > 0 && (
         <div class="mt-20">
-          <h2 class="text-2xl font-semibold text-brand-charcoal">Produits similaires</h2>
+          <h2 class="text-2xl font-semibold text-brand-charcoal">منتجات مشابهة</h2>
           <div class="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {similarProducts.map((item) => <ProductCard product={item} />)}
+            {similarProducts.map((item) => (
+              <ProductCard
+                product={item}
+                locale="ar"
+                basePath="/ar"
+                detailLabel="عرض التفاصيل"
+                colorsLabel="الألوان"
+              />
+            ))}
           </div>
         </div>
       )}
     </div>
   </section>
-
 </MainLayout>

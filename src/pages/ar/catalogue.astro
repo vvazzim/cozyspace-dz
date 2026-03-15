@@ -1,39 +1,40 @@
 ---
-import MainLayout from '../layouts/MainLayout.astro';
-import SectionTitle from '../components/SectionTitle.astro';
-import ProductCard from '../components/ProductCard.astro';
-import { categories } from '../data/categories';
-import { products } from '../data/products';
+import MainLayout from '../../layouts/MainLayout.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { categories } from '../../data/categories';
+import { products } from '../../data/products';
 
 const catalogProducts = products.filter(
   (product, index, list) =>
     index === list.findIndex((item) => (item.variantGroup || item.slug) === (product.variantGroup || product.slug))
 );
 
-const getAvailableColors = (productSlug: string, variantGroup?: string) =>
+const getAvailableColors = (variantGroup?: string) =>
   products
-    .filter((item) => (variantGroup ? item.variantGroup === variantGroup : item.slug === productSlug))
-    .map((item) => item.color)
+    .filter((item) => (variantGroup ? item.variantGroup === variantGroup : false))
+    .map((item) => item.colorAr || item.color)
     .filter(Boolean) as string[];
 ---
 
 <MainLayout
-  title="Catalogue"
-  description="Catalogue leger et premium de demonstration pour Cozy Space, avec categories simples et fiches produit dynamiques."
+  locale="ar"
+  title="الكتالوج"
+  description="كتالوج Cozy Space بالعربية مع مرايا مضيئة وخيارات ألوان واضحة."
 >
   <section class="section-shell">
     <div class="container-shell">
       <SectionTitle
-        eyebrow="Catalogue"
-        title="Miroirs lumineux"
-        copy="Collection de miroirs lumineux avec eclairage LED integre. Design moderne et elegant pour votre salle de bain ou dressing."
+        eyebrow="الكتالوج"
+        title="مرايا مضيئة"
+        copy="مجموعة من المرايا المضيئة بتصميم عصري وإضاءة LED مدمجة، مناسبة للحمام أو ركن التزيين."
       />
 
       <div class="mt-8 flex flex-wrap gap-3" id="filters">
-        <button class="rounded-full border border-brand-gold/40 bg-white px-4 py-2 text-sm font-medium text-brand-charcoal" data-filter="all">Tout voir</button>
+        <button class="rounded-full border border-brand-gold/40 bg-white px-4 py-2 text-sm font-medium text-brand-charcoal" data-filter="all">عرض الكل</button>
         {categories.map((category) => (
           <button id={category.slug} class="rounded-full border border-brand-line bg-white/80 px-4 py-2 text-sm font-medium text-brand-muted hover:text-brand-charcoal" data-filter={category.name}>
-            {category.name}
+            {category.nameAr || category.name}
           </button>
         ))}
       </div>
@@ -41,7 +42,14 @@ const getAvailableColors = (productSlug: string, variantGroup?: string) =>
       <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4" id="catalog-grid">
         {catalogProducts.map((product) => (
           <div data-category={product.category}>
-            <ProductCard product={product} availableColors={getAvailableColors(product.slug, product.variantGroup)} />
+            <ProductCard
+              product={product}
+              locale="ar"
+              basePath="/ar"
+              availableColors={getAvailableColors(product.variantGroup)}
+              detailLabel="عرض التفاصيل"
+              colorsLabel="الألوان"
+            />
           </div>
         ))}
       </div>

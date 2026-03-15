@@ -1,0 +1,42 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+import FAQ from '../../components/FAQ.astro';
+import { getFaqItems } from '../../lib/i18n';
+
+const faqItems = getFaqItems('ar');
+---
+
+<MainLayout locale="ar" title="اتصل بنا" description="صفحة تواصل بالعربية مع أسئلة شائعة ومعلومات مختصرة.">
+  <section class="section-shell">
+    <div class="container-shell">
+      <div class="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+        <div class="card-shell p-8 sm:p-10">
+          <SectionTitle
+            eyebrow="اتصل بنا"
+            title="نحن هنا لمساعدتك قبل الطلب"
+            copy="إذا كنت بحاجة إلى معلومات إضافية حول المنتج أو التوفر أو طريقة الطلب، يمكنك تصفح الكتالوج وترك بياناتك عبر نموذج الطلب."
+          />
+
+          <div class="mt-8 rounded-3xl border border-brand-line bg-brand-bg p-5">
+            <p class="text-sm leading-7 text-brand-muted">
+              يمكنك البدء من الكتالوج ثم فتح صفحة المنتج المناسبة وإرسال طلبك مباشرة.
+            </p>
+            <a href="/ar/catalogue" class="btn-primary mt-4">زيارة المتجر</a>
+          </div>
+        </div>
+
+        <div>
+          <SectionTitle
+            eyebrow="الأسئلة الشائعة"
+            title="إجابات سريعة"
+            copy="محتوى مختصر وواضح يساعدك على فهم طريقة الطلب والمعلومات الأساسية قبل الشراء."
+          />
+          <div class="mt-8">
+            <FAQ items={faqItems} />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</MainLayout>

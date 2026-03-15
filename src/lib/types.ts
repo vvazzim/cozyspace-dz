@@ -34,7 +34,9 @@ export interface Category {
   id: string;
   slug: string;
   name: string;
+  nameAr?: string;
   description: string;
+  descriptionAr?: string;
   image: string;
 }
 
@@ -42,14 +44,24 @@ export interface Product {
   id: string;
   slug: string;
   name: string;
+  nameAr?: string;
+  baseName?: string;
+  baseNameAr?: string;
+  color?: string;
+  colorAr?: string;
+  variantGroup?: string;
   category: string;
   collection: string;
+  collectionAr?: string;
   price: string;
   oldPrice?: string;
   images: string[];
   shortDescription: string;
+  shortDescriptionAr?: string;
   features: string[];
+  featuresAr?: string[];
   availability: string;
+  availabilityAr?: string;
   featured: boolean;
   tags: string[];
 }

@@ -1,15 +1,18 @@
 ---
-import { siteData } from '../data/site';
+import { getSiteData, type Locale, uiText, withLocalePath } from '../lib/i18n';
 
 interface Props {
   title?: string;
   copy?: string;
+  locale?: Locale;
 }
 
 const {
+  locale = 'fr',
   title = 'Une boutique pensee pour le quotidien et les idees cadeaux',
   copy = 'Parcourez une selection demo claire, legere et facile a rebrand. Le site reste volontairement simple, premium et evolutif.'
 } = Astro.props as Props;
+const siteData = getSiteData(locale);
 ---
 
 <section class="section-shell pt-0">
@@ -21,7 +24,7 @@ const {
         <p class="mt-4 max-w-2xl text-sm leading-7 text-white/75 sm:text-base">{copy}</p>
         <div class="mt-8 flex flex-wrap gap-3">
           <a href={siteData.primaryCTA.href} class="btn-primary">{siteData.primaryCTA.label}</a>
-          <a href="/contact" class="btn-secondary">Contacter la marque</a>
+          <a href={withLocalePath('/contact', locale)} class="btn-secondary">{uiText[locale].buttons.contactBrand}</a>
         </div>
       </div>
     </div>

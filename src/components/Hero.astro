@@ -1,15 +1,22 @@
 ---
-import { brandAssets, siteData } from '../data/site';
-import SocialLinks from './SocialLinks.astro';
+import { brandAssets } from '../data/site';
+import { getSiteData, type Locale } from '../lib/i18n';
+
+interface Props {
+  locale?: Locale;
+  descriptionText?: string;
+}
+
+const { locale = 'fr', descriptionText } = Astro.props as Props;
+const siteData = getSiteData(locale);
 ---
 
 <section class="section-shell pt-8 sm:pt-12">
   <div class="container-shell">
-    <div class="relative overflow-hidden rounded-[2rem] bg-cozy-hero shadow-premium">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(216,185,106,.22),transparent_22%)]"></div>
+    <div class="relative overflow-hidden rounded-[2rem] border border-white/20 bg-cozy-hero shadow-premium">
       <div class="relative grid items-center gap-8 px-6 py-8 sm:px-10 sm:py-12 lg:grid-cols-[0.9fr_1.1fr] lg:px-14 lg:py-16">
         <div class="flex justify-center lg:justify-start">
-          <div class="rounded-[2rem] border border-white/30 bg-white/15 p-4 backdrop-blur-sm">
+          <div class="rounded-[2rem] border border-white/10 bg-white/5 p-4 shadow-[0_18px_45px_rgba(17,17,17,0.16)] backdrop-blur-md">
             <img src={brandAssets.logo} alt={`${siteData.brandName} logo`} class="h-56 w-56 rounded-full object-cover sm:h-72 sm:w-72 lg:h-[22rem] lg:w-[22rem]" />
           </div>
         </div>
@@ -23,14 +30,12 @@ import SocialLinks from './SocialLinks.astro';
             {siteData.tagline}
           </p>
           <p class="mt-5 max-w-xl text-sm leading-7 text-white/80 sm:text-base">
-            Des produits utiles, doux et bien presentes pour le quotidien, les idees cadeaux et les petits essentiels qu on aime garder pres de soi.
+            {descriptionText ||
+              'Des produits utiles, doux et bien presentes pour le quotidien, les idees cadeaux et les petits essentiels qu on aime garder pres de soi.'}
           </p>
           <div class="mt-8 flex flex-wrap gap-3">
             <a href={siteData.primaryCTA.href} class="btn-primary">{siteData.primaryCTA.label}</a>
             <a href={siteData.secondaryCTA.href} class="btn-secondary">{siteData.secondaryCTA.label}</a>
-          </div>
-          <div class="mt-8">
-            <SocialLinks inverted />
           </div>
         </div>
       </div>

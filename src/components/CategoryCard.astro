@@ -1,19 +1,24 @@
 ---
 import type { Category } from '../lib/types';
+import type { Locale } from '../lib/i18n';
 
 interface Props {
   category: Category;
+  locale?: Locale;
+  basePath?: string;
 }
 
-const { category } = Astro.props as Props;
+const { category, locale = 'fr', basePath = '' } = Astro.props as Props;
+const categoryName = locale === 'ar' ? category.nameAr || category.name : category.name;
+const categoryDescription = locale === 'ar' ? category.descriptionAr || category.description : category.description;
 ---
 
-<a href={`/catalogue#${category.slug}`} class="group block overflow-hidden rounded-3xl border border-brand-line bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-premium">
+<a href={`${basePath}/catalogue#${category.slug}`} class="group block overflow-hidden rounded-3xl border border-brand-line bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-premium">
   <div class="overflow-hidden bg-brand-pearl">
-    <img src={category.image} alt={category.name} class="aspect-[5/4] w-full object-cover transition duration-300 group-hover:scale-[1.03]" loading="lazy" />
+    <img src={category.image} alt={categoryName} class="aspect-[5/4] w-full object-cover transition duration-300 group-hover:scale-[1.03]" loading="lazy" />
   </div>
   <div class="p-5">
-    <h3 class="text-xl font-semibold text-brand-charcoal">{category.name}</h3>
-    <p class="mt-2 text-sm leading-7 text-brand-muted">{category.description}</p>
+    <h3 class="text-xl font-semibold text-brand-charcoal">{categoryName}</h3>
+    <p class="mt-2 text-sm leading-7 text-brand-muted">{categoryDescription}</p>
   </div>
 </a>

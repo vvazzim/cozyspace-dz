@@ -1,0 +1,50 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import SectionTitle from '../../components/SectionTitle.astro';
+import CTASection from '../../components/CTASection.astro';
+import { brandAssets } from '../../data/site';
+import { getAboutCopy } from '../../lib/i18n';
+
+const aboutCopy = getAboutCopy('ar');
+---
+
+<MainLayout locale="ar" title="من نحن" description={aboutCopy.intro}>
+  <section class="section-shell">
+    <div class="container-shell">
+      <div class="grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <div class="card-shell overflow-hidden p-5 sm:p-6">
+          <img src={brandAssets.banner} alt="هوية Cozy Space" class="w-full rounded-[1.5rem] object-cover shadow-soft" />
+        </div>
+
+        <div>
+          <SectionTitle
+            eyebrow="هوية العلامة"
+            title="متجر هادئ وعملي وسهل التطوير"
+            copy={aboutCopy.intro}
+          />
+
+          <p class="mt-6 max-w-2xl text-sm leading-7 text-brand-muted sm:text-base">
+            {aboutCopy.mission}
+          </p>
+
+          <div class="mt-8 grid gap-4 sm:grid-cols-2">
+            <article class="card-shell p-5">
+              <h3 class="text-lg font-semibold text-brand-charcoal">روح يومية</h3>
+              <p class="mt-2 text-sm leading-7 text-brand-muted">منتجات مفيدة وسهلة الاندماج في البيت والروتين اليومي أو في أفكار الهدايا البسيطة.</p>
+            </article>
+            <article class="card-shell p-5">
+              <h3 class="text-lg font-semibold text-brand-charcoal">هوية بصرية ناعمة</h3>
+              <p class="mt-2 text-sm leading-7 text-brand-muted">ألوان هادئة ولمسة أنيقة تمنح المتجر إحساسا مريحا ومتوازنا.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTASection
+    locale="ar"
+    title="القاعدة جاهزة لإضافة مجموعات جديدة"
+    copy="يمكن تحديث الفئات والمنتجات والأسعار والصور ومعلومات التواصل بسرعة من ملفات البيانات الأساسية."
+  />
+</MainLayout>

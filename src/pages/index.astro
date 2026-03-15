@@ -6,7 +6,6 @@ import CategoryCard from '../components/CategoryCard.astro';
 import ProductCard from '../components/ProductCard.astro';
 import TrustBadges from '../components/TrustBadges.astro';
 import CTASection from '../components/CTASection.astro';
-import SocialLinks from '../components/SocialLinks.astro';
 import { categories } from '../data/categories';
 import { featuredProducts } from '../data/products';
 import { siteData } from '../data/site';
@@ -19,8 +18,8 @@ import { siteData } from '../data/site';
     <div class="container-shell">
       <SectionTitle
         eyebrow="Categories"
-        title="Des selections utiles et faciles a parcourir"
-        copy="Le template reprend un univers doux, premium et modulable, inspire du logo et de la banniere fournis pour Cozy Space."
+        title="Miroirs lumineux haut de gamme"
+        copy="Decouvrez nos miroirs lumineux avec eclairage LED integre. Design moderne, finition elegante noir et blanc pour sublimer votre espace."
       />
 
       <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
@@ -33,7 +32,7 @@ import { siteData } from '../data/site';
     <div class="container-shell">
       <SectionTitle
         eyebrow="Selection coup de coeur"
-        title="Quelques produits demo dans l esprit Cozy Space"
+        title="Quelques produits demo dans l'esprit Cozy Space"
         copy="Des produits de demonstration coherents avec une boutique lifestyle, idees cadeaux et objets utiles du quotidien."
       />
 
@@ -57,19 +56,4 @@ import { siteData } from '../data/site';
   </section>
 
   <CTASection />
-
-  <section class="section-shell pt-0">
-    <div class="container-shell">
-      <div class="card-shell p-8 sm:p-10">
-        <SectionTitle
-          eyebrow="Restez connecte"
-          title="Instagram et TikTok comme canaux principaux"
-          copy="Les reseaux connus sont integres dans le site pour encourager la decouverte de la marque et une prise de contact sociale naturelle."
-        />
-        <div class="mt-8">
-          <SocialLinks />
-        </div>
-      </div>
-    </div>
-  </section>
 </MainLayout>

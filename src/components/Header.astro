@@ -1,17 +1,24 @@
 ---
-import { brandAssets, siteData } from '../data/site';
+import { brandAssets } from '../data/site';
+import { getSiteData, type Locale, uiText, withLocalePath } from '../lib/i18n';
 
+interface Props {
+  locale?: Locale;
+}
+
+const { locale = 'fr' } = Astro.props as Props;
+const siteData = getSiteData(locale);
 const links = [
-  { href: '/', label: 'Accueil' },
-  { href: '/catalogue', label: 'Catalogue' },
-  { href: '/a-propos', label: 'A propos' },
-  { href: '/contact', label: 'Contact' }
+  { href: withLocalePath('/', locale), label: uiText[locale].nav.home },
+  { href: withLocalePath('/catalogue', locale), label: uiText[locale].nav.catalogue },
+  { href: withLocalePath('/a-propos', locale), label: uiText[locale].nav.about },
+  { href: withLocalePath('/contact', locale), label: uiText[locale].nav.contact }
 ];
 ---
 
 <header class="sticky top-0 z-50 border-b border-brand-line/80 bg-brand-bg/85 backdrop-blur">
   <div class="container-shell flex h-20 items-center justify-between gap-6">
-    <a href="/" class="flex items-center gap-3">
+    <a href={withLocalePath('/', locale)} class="flex items-center gap-3">
       <img src={brandAssets.logo} alt={`${siteData.brandName} logo`} class="h-12 w-12 rounded-full object-cover ring-1 ring-brand-gold/35" />
       <div class="hidden sm:block">
         <div class="text-sm font-semibold uppercase tracking-brand text-brand-charcoal">{siteData.brandName}</div>

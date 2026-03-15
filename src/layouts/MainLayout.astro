@@ -1,21 +1,25 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import '../styles/global.css';
-import { siteData } from '../data/site';
+import { getDir, getSiteData, type Locale } from '../lib/i18n';
 
 interface Props {
   title: string;
   description?: string;
   image?: string;
+  locale?: Locale;
 }
 
-const { title, description = siteData.description, image = '/images/brand/banner-cozy-space.jpg' } = Astro.props as Props;
+const { title, locale = 'fr', image = '/images/brand/banner-cozy-space.jpg' } = Astro.props as Props;
+const siteData = getSiteData(locale);
+const { description = siteData.description } = Astro.props as Props;
 const fullTitle = `${title} | ${siteData.brandName}`;
 ---
 
 <!doctype html>
-<html lang="fr">
+<html lang={locale} dir={getDir(locale)}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -32,10 +36,11 @@ const fullTitle = `${title} | ${siteData.brandName}`;
     <link rel="icon" href="/images/brand/logo-cozy-space.jpg" />
   </head>
   <body class="min-h-screen">
-    <Header />
+    <LanguageSwitcher locale={locale} />
+    <Header locale={locale} />
     <main>
       <slot />
     </main>
-    <Footer />
+    <Footer locale={locale} />
   </body>
 </html>

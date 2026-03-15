@@ -5,21 +5,21 @@ export default {
     extend: {
       colors: {
         brand: {
-          bg: '#F5F3EE',
-          surface: '#FBFAF7',
-          pearl: '#D9D9D9',
-          cool: '#BFC8C9',
+          bg: '#F3EFE7',
+          surface: '#FCFBF8',
+          pearl: '#E6E0D4',
+          cool: '#C7CFD0',
           ink: '#111111',
           charcoal: '#2E3236',
-          muted: '#6D7278',
+          muted: '#5F666D',
           gold: '#D8B96A',
-          line: '#E3DDD0',
-          goldsoft: '#EFE3BC'
+          line: '#DDD3C3',
+          goldsoft: '#F2E8C7'
         }
       },
       boxShadow: {
-        soft: '0 10px 30px rgba(17, 17, 17, 0.06)',
-        premium: '0 18px 40px rgba(46, 50, 54, 0.16)'
+        soft: '0 14px 34px rgba(46, 50, 54, 0.08), 0 2px 10px rgba(17, 17, 17, 0.04)',
+        premium: '0 24px 60px rgba(46, 50, 54, 0.18), 0 6px 18px rgba(17, 17, 17, 0.08)'
       },
       borderRadius: {
         '4xl': '2rem'
@@ -28,7 +28,7 @@ export default {
         brand: '0.12em'
       },
       backgroundImage: {
-        'cozy-hero': 'linear-gradient(100deg, #F5F3EE 0%, #D9D9D9 48%, #2E3236 100%)'
+        'cozy-hero': 'linear-gradient(0deg, #b6c6c6 0%, #b6c6c6 100%)'
       }
     }
   },

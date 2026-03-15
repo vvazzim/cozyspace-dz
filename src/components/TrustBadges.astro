@@ -1,9 +1,17 @@
 ---
-import { siteData } from '../data/site';
+import type { TrustItem } from '../lib/types';
+import { getSiteData, type Locale } from '../lib/i18n';
+
+interface Props {
+  locale?: Locale;
+  items?: TrustItem[];
+}
+
+const { locale = 'fr', items = getSiteData(locale).trustItems } = Astro.props as Props;
 ---
 
 <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-  {siteData.trustItems.map((item) => (
+  {items.map((item) => (
     <article class="card-shell p-5">
       <div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-gold/15 text-brand-gold">
         <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" stroke-width="1.8">
