@@ -138,6 +138,7 @@ const submitUrl = '/.netlify/functions/submit-order';
   const successMessage = document.getElementById('success-message');
   const errorMessage = document.getElementById('error-message');
   const submitButton = form?.querySelector('button[type="submit"]');
+  const defaultSubmitLabel = submitButton?.getAttribute('data-submit-label') || 'Commander';
   const isEmbedded = modal?.classList.contains('mt-8');
 
   window.openOrderModal = () => {
@@ -202,10 +203,15 @@ const submitUrl = '/.netlify/functions/submit-order';
         throw new Error(`HTTP ${response.status}`);
       }
 
+      const result = await response.json();
+      if (!result?.success) {
+        throw new Error(result?.message || 'Order submission failed');
+      }
+
       successMessage.classList.remove('hidden');
       errorMessage.classList.add('hidden');
       submitButton.removeAttribute('disabled');
-      submitButton.textContent = form.getAttribute('data-submit-label') || 'Commander';
+      submitButton.textContent = defaultSubmitLabel;
 
       setTimeout(() => {
         closeModal();
@@ -213,7 +219,7 @@ const submitUrl = '/.netlify/functions/submit-order';
     } catch (error) {
       console.error('Erreur:', error);
       submitButton.removeAttribute('disabled');
-      submitButton.textContent = form.getAttribute('data-submit-label') || 'Commander';
+      submitButton.textContent = defaultSubmitLabel;
       successMessage.classList.add('hidden');
       errorMessage.classList.remove('hidden');
     }
