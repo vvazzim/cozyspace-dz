@@ -3,18 +3,10 @@ import MainLayout from '../layouts/MainLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import ProductCard from '../components/ProductCard.astro';
 import { categories } from '../data/categories';
-import { products } from '../data/products';
+import { getAvailableColors, getCatalogProducts, getProducts } from '../lib/product-source';
 
-const catalogProducts = products.filter(
-  (product, index, list) =>
-    index === list.findIndex((item) => (item.variantGroup || item.slug) === (product.variantGroup || product.slug))
-);
-
-const getAvailableColors = (productSlug: string, variantGroup?: string) =>
-  products
-    .filter((item) => (variantGroup ? item.variantGroup === variantGroup : item.slug === productSlug))
-    .map((item) => item.color)
-    .filter(Boolean) as string[];
+const products = await getProducts();
+const catalogProducts = getCatalogProducts(products);
 ---
 
 <MainLayout
@@ -41,7 +33,7 @@ const getAvailableColors = (productSlug: string, variantGroup?: string) =>
       <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4" id="catalog-grid">
         {catalogProducts.map((product) => (
           <div data-category={product.category}>
-            <ProductCard product={product} availableColors={getAvailableColors(product.slug, product.variantGroup)} />
+            <ProductCard product={product} availableColors={getAvailableColors(products, product.slug, product.variantGroup)} />
           </div>
         ))}
       </div>

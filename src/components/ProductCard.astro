@@ -1,6 +1,7 @@
 ---
 import type { Product } from '../lib/types';
 import type { Locale } from '../lib/i18n';
+import { getProductColors } from '../lib/product-source';
 
 interface Props {
   product: Product;
@@ -17,15 +18,7 @@ const {
   basePath = '',
   detailLabel = 'Voir le detail',
   colorsLabel = 'Couleurs',
-  availableColors = locale === 'ar'
-    ? product.colorAr
-      ? [product.colorAr]
-      : product.color
-        ? [product.color]
-        : []
-    : product.color
-      ? [product.color]
-      : []
+  availableColors = getProductColors(product, locale)
 } = Astro.props as Props;
 const title = locale === 'ar' ? product.baseNameAr || product.baseName || product.nameAr || product.name : product.baseName || product.name;
 const collection = locale === 'ar' ? product.collectionAr || product.collection : product.collection;

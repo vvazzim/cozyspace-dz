@@ -7,8 +7,11 @@ import ProductCard from '../components/ProductCard.astro';
 import TrustBadges from '../components/TrustBadges.astro';
 import CTASection from '../components/CTASection.astro';
 import { categories } from '../data/categories';
-import { featuredProducts } from '../data/products';
 import { siteData } from '../data/site';
+import { getFeaturedProducts, getProducts } from '../lib/product-source';
+
+const products = await getProducts();
+const featuredProducts = getFeaturedProducts(products);
 ---
 
 <MainLayout title="Accueil" description={siteData.description}>
@@ -47,7 +50,7 @@ import { siteData } from '../data/site';
       <SectionTitle
         eyebrow="Pourquoi choisir Cozy Space"
         title="Une presentation sobre, rassurante et facilement evolutive"
-        copy="La structure reste legere, mobile first et centrale les contenus remplaçables pour permettre un rebranding ou une mise a jour rapide plus tard."
+        copy="La structure reste legere, mobile first et centrale les contenus remplaÃ§ables pour permettre un rebranding ou une mise a jour rapide plus tard."
       />
       <div class="mt-10">
         <TrustBadges />

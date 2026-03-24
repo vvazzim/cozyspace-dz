@@ -74,4 +74,21 @@
   .link-muted {
     @apply text-brand-muted hover:text-brand-charcoal;
   }
+
+  .product-gallery-track {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .product-gallery-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .product-gallery-slide {
+    scroll-snap-align: start;
+  }
+
+  .product-gallery-dot[aria-current='true'] {
+    @apply bg-brand-charcoal;
+  }
 }

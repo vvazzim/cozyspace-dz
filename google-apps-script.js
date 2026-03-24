@@ -36,7 +36,7 @@ function handleOrderRequest(e) {
 
     Logger.log('Order data received: %s', JSON.stringify(data));
 
-    var spreadsheetId = '1Do4iJU8TdtvwmODoH_ypc1xdrZTouUCxhOxVQTJK_do';
+    var spreadsheetId = 'YOUR_SPREADSHEET_ID';
     var sheet = SpreadsheetApp.openById(spreadsheetId).getSheets()[0];
 
     var rowData = [
@@ -45,6 +45,7 @@ function handleOrderRequest(e) {
       data.lastName || 'N/A',
       data.phone || 'N/A',
       data.product || 'N/A',
+      data.color || 'N/A',
       data.quantity || '1',
       data.productSlug || 'N/A',
       data.price || 'N/A',
@@ -88,7 +89,7 @@ function testScript() {
   var testData = {
     firstName: 'Test',
     lastName: 'User',
-    phone: '0123456789',
+    phone: '+213550123456',
     product: 'Miroir Lumineux Noir',
     quantity: '1',
     productSlug: 'miroir-lumineux-noir',

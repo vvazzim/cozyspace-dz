@@ -2,37 +2,27 @@
 import MainLayout from '../../../layouts/MainLayout.astro';
 import ProductCard from '../../../components/ProductCard.astro';
 import OrderForm from '../../../components/OrderForm.astro';
-import { products } from '../../../data/products';
+import { getProductColors, getProducts, getSimilarProducts } from '../../../lib/product-source';
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const products = await getProducts();
+
   return products.map((product) => ({
     params: { slug: product.slug },
-    props: { product }
+    props: { product, products }
   }));
 }
 
-const { product } = Astro.props;
+const { product, products } = Astro.props;
 const displayName = product.baseNameAr || product.baseName || product.nameAr || product.name;
 const productName = product.nameAr || product.name;
 const collection = product.collectionAr || product.collection;
 const description = product.shortDescriptionAr || product.shortDescription;
 const availability = product.availabilityAr || product.availability;
 const features = product.featuresAr || product.features;
-const variants = products.filter((item) =>
-  product.variantGroup ? item.variantGroup === product.variantGroup : item.slug === product.slug
-);
-const similarProducts = products
-  .filter(
-    (item) =>
-      item.category === product.category &&
-      item.slug !== product.slug &&
-      item.variantGroup !== product.variantGroup
-  )
-  .filter(
-    (item, index, list) =>
-      index === list.findIndex((entry) => (entry.variantGroup || entry.slug) === (item.variantGroup || item.slug))
-  )
-  .slice(0, 4);
+const similarProducts = getSimilarProducts(products, product);
+const colors = getProductColors(product, 'ar');
+const galleryId = `product-gallery-${product.slug}`;
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
@@ -61,35 +51,63 @@ const schema = {
 
       <div class="grid gap-10 lg:grid-cols-[1fr_0.95fr] lg:items-start">
         <div class="card-shell overflow-hidden p-4 sm:p-6">
-          <img src={product.images[0]} alt={productName} class="w-full rounded-[1.5rem] bg-brand-pearl object-cover" />
+          <div class="relative" data-product-gallery={galleryId}>
+            <div
+              id={galleryId}
+              class="product-gallery-track flex snap-x snap-mandatory overflow-x-auto scroll-smooth rounded-[1.5rem]"
+              dir="ltr"
+            >
+              {product.images.map((image, index) => (
+                <figure class="product-gallery-slide w-full min-w-full overflow-hidden bg-brand-pearl">
+                  <img
+                    src={image}
+                    alt={`${productName} ${index + 1}`}
+                    class="aspect-[4/5] w-full object-cover"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+                </figure>
+              ))}
+            </div>
+
+            {product.images.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  class="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-brand-line bg-white/90 px-3 py-2 text-sm font-semibold text-brand-charcoal shadow-soft hover:border-brand-gold"
+                  data-gallery-prev={galleryId}
+                  aria-label="الصورة السابقة"
+                >
+                  ←
+                </button>
+                <button
+                  type="button"
+                  class="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-brand-line bg-white/90 px-3 py-2 text-sm font-semibold text-brand-charcoal shadow-soft hover:border-brand-gold"
+                  data-gallery-next={galleryId}
+                  aria-label="الصورة التالية"
+                >
+                  →
+                </button>
+              </>
+            )}
+          </div>
+
+          {product.images.length > 1 && (
+            <div class="mt-4 flex flex-wrap justify-center gap-2" data-gallery-dots={galleryId}>
+              {product.images.map((image, index) => (
+                <button
+                  type="button"
+                  class="product-gallery-dot h-2.5 w-2.5 rounded-full bg-brand-line"
+                  data-gallery-dot={galleryId}
+                  data-gallery-index={index}
+                  aria-label={`عرض الصورة ${index + 1}`}
+                  aria-current={index === 0 ? 'true' : 'false'}
+                ></button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div>
-          {variants.length > 1 && (
-            <div class="rounded-3xl border border-brand-line bg-white p-5">
-              <div class="text-sm font-semibold text-brand-charcoal">اللون</div>
-              <div class="mt-4 flex flex-wrap gap-3">
-                {variants.map((variant) => {
-                  const isActive = variant.slug === product.slug;
-
-                  return (
-                    <a
-                      href={`/ar/produit/${variant.slug}`}
-                      class:list={[
-                        'rounded-full border px-4 py-2 text-sm font-semibold transition',
-                        isActive
-                          ? 'border-brand-charcoal bg-brand-charcoal text-white'
-                          : 'border-brand-line bg-white text-brand-charcoal hover:border-brand-gold'
-                      ]}
-                    >
-                      {variant.colorAr || variant.color || variant.nameAr || variant.name}
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           <p class="mt-4 text-sm leading-7 text-brand-muted sm:text-base">{description}</p>
 
           <div class="mt-6 flex items-end gap-4">
@@ -104,7 +122,7 @@ const schema = {
           </div>
 
           <div class="mt-6 rounded-3xl border border-brand-line bg-white p-5">
-            <div class="text-sm font-semibold text-brand-charcoal">المميزات</div>
+            <div class="text-sm font-semibold text-brand-charcoal">Ø§Ù„Ù…Ù…ÙŠØ²Ø§Øª</div>
             <ul class="mt-4 grid gap-3 text-sm text-brand-muted">
               {features.map((feature) => (
                 <li class="flex items-start gap-3">
@@ -116,19 +134,20 @@ const schema = {
           </div>
 
           <div class="mt-6 rounded-3xl border border-brand-line bg-brand-bg p-5">
-            <div class="text-sm font-medium text-brand-charcoal">التوفر</div>
+            <div class="text-sm font-medium text-brand-charcoal">Ø§Ù„ØªÙˆÙØ±</div>
             <p class="mt-2 text-sm leading-7 text-brand-muted">{availability}</p>
           </div>
 
           <div class="mt-8 flex flex-wrap gap-3">
-            <a href="/ar/catalogue" class="btn-secondary">زيارة المتجر</a>
-            <a href="/ar/contact" class="btn-secondary">تواصل مع العلامة</a>
+            <a href="/ar/catalogue" class="btn-secondary">Ø²ÙŠØ§Ø±Ø© Ø§Ù„Ù…ØªØ¬Ø±</a>
+            <a href="/ar/contact" class="btn-secondary">ØªÙˆØ§ØµÙ„ Ù…Ø¹ Ø§Ù„Ø¹Ù„Ø§Ù…Ø©</a>
           </div>
 
           <OrderForm
             productName={productName}
             productSlug={product.slug}
             productPrice={product.price}
+            colors={colors}
             embedded={true}
             locale="ar"
           />
@@ -137,15 +156,15 @@ const schema = {
 
       {similarProducts.length > 0 && (
         <div class="mt-20">
-          <h2 class="text-2xl font-semibold text-brand-charcoal">منتجات مشابهة</h2>
+          <h2 class="text-2xl font-semibold text-brand-charcoal">Ù…Ù†ØªØ¬Ø§Øª Ù…Ø´Ø§Ø¨Ù‡Ø©</h2>
           <div class="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {similarProducts.map((item) => (
               <ProductCard
                 product={item}
                 locale="ar"
                 basePath="/ar"
-                detailLabel="عرض التفاصيل"
-                colorsLabel="الألوان"
+                detailLabel="Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„"
+                colorsLabel="Ø§Ù„Ø£Ù„ÙˆØ§Ù†"
               />
             ))}
           </div>
@@ -153,4 +172,56 @@ const schema = {
       )}
     </div>
   </section>
+  <script is:inline>
+    (() => {
+      const setupGallery = (root) => {
+        const galleryId = root.getAttribute('data-product-gallery');
+        if (!galleryId) return;
+
+        const track = document.getElementById(galleryId);
+        if (!track) return;
+
+        const dots = Array.from(document.querySelectorAll(`[data-gallery-dot="${galleryId}"]`));
+        const prevButton = document.querySelector(`[data-gallery-prev="${galleryId}"]`);
+        const nextButton = document.querySelector(`[data-gallery-next="${galleryId}"]`);
+
+        const getIndex = () => {
+          const width = track.clientWidth || 1;
+          return Math.round(track.scrollLeft / width);
+        };
+
+        const updateDots = () => {
+          const activeIndex = getIndex();
+          dots.forEach((dot, index) => {
+            dot.setAttribute('aria-current', index === activeIndex ? 'true' : 'false');
+          });
+        };
+
+        const scrollToIndex = (index) => {
+          track.scrollTo({ left: track.clientWidth * index, behavior: 'smooth' });
+        };
+
+        prevButton?.addEventListener('click', () => {
+          scrollToIndex(Math.max(0, getIndex() - 1));
+        });
+
+        nextButton?.addEventListener('click', () => {
+          scrollToIndex(Math.min(dots.length - 1, getIndex() + 1));
+        });
+
+        dots.forEach((dot, index) => {
+          dot.addEventListener('click', () => scrollToIndex(index));
+        });
+
+        track.addEventListener('scroll', () => {
+          window.requestAnimationFrame(updateDots);
+        });
+
+        window.addEventListener('resize', updateDots);
+        updateDots();
+      };
+
+      document.querySelectorAll('[data-product-gallery]').forEach(setupGallery);
+    })();
+  </script>
 </MainLayout>

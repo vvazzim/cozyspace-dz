@@ -5,16 +5,22 @@ interface Props {
   productName: string;
   productSlug: string;
   productPrice?: string;
+  colors?: string[];
   embedded?: boolean;
   locale?: Locale;
 }
 
-const { productName, productSlug, productPrice = '', embedded = false, locale = 'fr' } = Astro.props;
+const { productName, productSlug, productPrice = '', colors = [], embedded = false, locale = 'fr' } = Astro.props;
 const labels = uiText[locale].order;
-const submitUrl =
-  import.meta.env.PUBLIC_GOOGLE_SCRIPT_URL ||
-  'https://script.google.com/macros/s/AKfycbwxzjur4GlPl7oloAtsOaI3kBcl62JsJII7Dykg32hb0vX4TNXGeNxCp1Z3a--f2Mnz/exec';
+const submitUrl = import.meta.env.PUBLIC_GOOGLE_SCRIPT_URL || '';
 const iframeTarget = `order-submit-frame-${productSlug}`;
+const countryCodes = [
+  { label: '+213  Algerie', value: '+213' },
+  { label: '+33  France', value: '+33' },
+  { label: '+216  Tunisie', value: '+216' },
+  { label: '+212  Maroc', value: '+212' },
+  { label: '+1  USA / Canada', value: '+1' }
+];
 ---
 
 <div
@@ -47,6 +53,7 @@ const iframeTarget = `order-submit-frame-${productSlug}`;
               type="text"
               id="firstName"
               name="firstName"
+              minlength="2"
               required
               class="mt-1 block w-full rounded-lg border border-brand-line px-3 py-2 text-sm focus:border-brand-gold focus:outline-none"
             />
@@ -57,6 +64,7 @@ const iframeTarget = `order-submit-frame-${productSlug}`;
               type="text"
               id="lastName"
               name="lastName"
+              minlength="2"
               required
               class="mt-1 block w-full rounded-lg border border-brand-line px-3 py-2 text-sm focus:border-brand-gold focus:outline-none"
             />
@@ -64,14 +72,60 @@ const iframeTarget = `order-submit-frame-${productSlug}`;
         </div>
 
         <div>
-          <label for="phone" class="block text-sm font-medium text-brand-charcoal">{labels.phone}</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            required
-            class="mt-1 block w-full rounded-lg border border-brand-line px-3 py-2 text-sm focus:border-brand-gold focus:outline-none"
-          />
+          {colors.length > 0 && (
+            <>
+              <div class="block text-sm font-medium text-brand-charcoal">{labels.color}</div>
+              <div class="mt-2 flex flex-wrap gap-3" data-color-picker>
+                {colors.map((color, index) => (
+                  <button
+                    type="button"
+                    class:list={[
+                      'rounded-full border px-4 py-2 text-sm font-semibold transition',
+                      index === 0
+                        ? 'border-brand-charcoal bg-brand-charcoal text-white'
+                        : 'border-brand-line bg-white text-brand-charcoal hover:border-brand-gold'
+                    ]}
+                    data-color-option
+                    data-color-value={color}
+                    aria-pressed={index === 0 ? 'true' : 'false'}
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
+              <input type="hidden" id="selectedColor" name="color" value={colors[0]} />
+            </>
+          )}
+        </div>
+
+        <div>
+          <label for="phoneLocal" class="block text-sm font-medium text-brand-charcoal">{labels.phone}</label>
+          <div class="mt-1 grid grid-cols-[130px_minmax(0,1fr)] gap-2">
+            <select
+              id="countryCode"
+              name="countryCode"
+              class="rounded-lg border border-brand-line bg-white px-3 py-2 text-sm focus:border-brand-gold focus:outline-none"
+            >
+              {countryCodes.map((code) => (
+                <option value={code.value}>{code.label}</option>
+              ))}
+            </select>
+            <input
+              type="tel"
+              id="phoneLocal"
+              name="phoneLocal"
+              inputmode="numeric"
+              autocomplete="tel-national"
+              minlength="8"
+              maxlength="15"
+              pattern="[0-9 ]{8,15}"
+              placeholder="0550123456"
+              required
+              class="block w-full rounded-lg border border-brand-line px-3 py-2 text-sm focus:border-brand-gold focus:outline-none"
+            />
+          </div>
+          <p class="mt-1 text-xs text-brand-muted">Exemple : 0550123456</p>
+          <input type="hidden" id="phone" name="phone" value="" />
         </div>
 
         <div>
@@ -81,6 +135,7 @@ const iframeTarget = `order-submit-frame-${productSlug}`;
             id="quantity"
             name="quantity"
             min="1"
+            step="1"
             value="1"
             required
             class="mt-1 block w-full rounded-lg border border-brand-line px-3 py-2 text-sm focus:border-brand-gold focus:outline-none"
@@ -93,6 +148,7 @@ const iframeTarget = `order-submit-frame-${productSlug}`;
             id="address"
             name="address"
             rows="3"
+            minlength="8"
             required
             class="mt-1 block w-full rounded-lg border border-brand-line px-3 py-2 text-sm focus:border-brand-gold focus:outline-none"
             placeholder={labels.addressPlaceholder}
@@ -140,11 +196,67 @@ const iframeTarget = `order-submit-frame-${productSlug}`;
   const closeBtn = document.getElementById('close-modal');
   const cancelBtn = document.getElementById('cancel-order');
   const form = document.getElementById('order-form');
+  const phoneInput = document.getElementById('phoneLocal');
+  const phoneHiddenInput = document.getElementById('phone');
+  const countryCodeSelect = document.getElementById('countryCode');
   const successMessage = document.getElementById('success-message');
   const errorMessage = document.getElementById('error-message');
+  const colorInput = document.getElementById('selectedColor');
+  const colorButtons = Array.from(document.querySelectorAll('[data-color-option]'));
   const submitButton = form?.querySelector('button[type="submit"]');
   const defaultSubmitLabel = submitButton?.getAttribute('data-submit-label') || 'Commander';
   const isEmbedded = modal?.classList.contains('mt-8');
+
+  const buildPhoneNumber = () => {
+    if (!phoneInput || !phoneHiddenInput || !countryCodeSelect) return false;
+
+    const countryCode = countryCodeSelect.value.trim();
+    let digits = phoneInput.value.replace(/\D/g, '');
+
+    if (!digits || digits.length < 8 || digits.length > 15) {
+      phoneInput.setCustomValidity('Veuillez saisir un numero valide.');
+      phoneHiddenInput.value = '';
+      return false;
+    }
+
+    if (countryCode === '+213' && digits.startsWith('0')) {
+      digits = digits.slice(1);
+    }
+
+    phoneInput.setCustomValidity('');
+    phoneHiddenInput.value = `${countryCode}${digits}`;
+    return true;
+  };
+
+  phoneInput?.addEventListener('input', () => {
+    if (!phoneInput) return;
+    phoneInput.value = phoneInput.value.replace(/[^\d ]/g, '');
+    buildPhoneNumber();
+  });
+
+  countryCodeSelect?.addEventListener('change', buildPhoneNumber);
+
+  const syncSelectedColor = (button) => {
+    if (!colorInput) return;
+
+    const nextColor = button?.getAttribute('data-color-value') || '';
+    colorInput.value = nextColor;
+
+    colorButtons.forEach((item) => {
+      const isActive = item === button;
+      item.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      item.classList.toggle('border-brand-charcoal', isActive);
+      item.classList.toggle('bg-brand-charcoal', isActive);
+      item.classList.toggle('text-white', isActive);
+      item.classList.toggle('border-brand-line', !isActive);
+      item.classList.toggle('bg-white', !isActive);
+      item.classList.toggle('text-brand-charcoal', !isActive);
+    });
+  };
+
+  colorButtons.forEach((button) => {
+    button.addEventListener('click', () => syncSelectedColor(button));
+  });
 
   window.openOrderModal = () => {
     if (!modal) return;
@@ -160,6 +272,12 @@ const iframeTarget = `order-submit-frame-${productSlug}`;
       document.body.style.overflow = 'auto';
     }
     form.reset();
+    if (phoneHiddenInput) {
+      phoneHiddenInput.value = '';
+    }
+    if (colorButtons[0]) {
+      syncSelectedColor(colorButtons[0]);
+    }
     successMessage.classList.add('hidden');
     errorMessage.classList.add('hidden');
   };
@@ -173,8 +291,16 @@ const iframeTarget = `order-submit-frame-${productSlug}`;
     }
   });
 
-  form?.addEventListener('submit', () => {
-    if (!successMessage || !errorMessage || !submitButton) return;
+  form?.addEventListener('submit', (e) => {
+    if (!successMessage || !errorMessage || !submitButton || !form) return;
+
+    const isPhoneValid = buildPhoneNumber();
+    if (!isPhoneValid || !form.reportValidity()) {
+      e.preventDefault();
+      errorMessage.classList.remove('hidden');
+      successMessage.classList.add('hidden');
+      return;
+    }
 
     submitButton.setAttribute('disabled', 'disabled');
     submitButton.textContent = 'Envoi...';

@@ -7,24 +7,26 @@ import ProductCard from '../../components/ProductCard.astro';
 import TrustBadges from '../../components/TrustBadges.astro';
 import CTASection from '../../components/CTASection.astro';
 import { categories } from '../../data/categories';
-import { featuredProducts } from '../../data/products';
 import { getSiteData } from '../../lib/i18n';
+import { getFeaturedProducts, getProducts } from '../../lib/product-source';
 
 const siteData = getSiteData('ar');
+const products = await getProducts();
+const featuredProducts = getFeaturedProducts(products);
 ---
 
-<MainLayout locale="ar" title="الرئيسية" description={siteData.description}>
+<MainLayout locale="ar" title="Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©" description={siteData.description}>
   <Hero
     locale="ar"
-    descriptionText="منتجات عملية ومرتبة بعناية للحياة اليومية، للهدايا، وللتفاصيل الصغيرة التي تمنح البيت لمسة أجمل."
+    descriptionText="Ù…Ù†ØªØ¬Ø§Øª Ø¹Ù…Ù„ÙŠØ© ÙˆÙ…Ø±ØªØ¨Ø© Ø¨Ø¹Ù†Ø§ÙŠØ© Ù„Ù„Ø­ÙŠØ§Ø© Ø§Ù„ÙŠÙˆÙ…ÙŠØ©ØŒ Ù„Ù„Ù‡Ø¯Ø§ÙŠØ§ØŒ ÙˆÙ„Ù„ØªÙØ§ØµÙŠÙ„ Ø§Ù„ØµØºÙŠØ±Ø© Ø§Ù„ØªÙŠ ØªÙ…Ù†Ø­ Ø§Ù„Ø¨ÙŠØª Ù„Ù…Ø³Ø© Ø£Ø¬Ù…Ù„."
   />
 
   <section class="section-shell pt-2">
     <div class="container-shell">
       <SectionTitle
-        eyebrow="الفئات"
-        title="مرايا مضيئة بتصميم راق"
-        copy="اكتشف تشكيلتنا من المرايا المضيئة بإضاءة LED المدمجة، بتفاصيل عملية وأناقة تناسب مختلف المساحات."
+        eyebrow="Ø§Ù„ÙØ¦Ø§Øª"
+        title="Ù…Ø±Ø§ÙŠØ§ Ù…Ø¶ÙŠØ¦Ø© Ø¨ØªØµÙ…ÙŠÙ… Ø±Ø§Ù‚"
+        copy="Ø§ÙƒØªØ´Ù ØªØ´ÙƒÙŠÙ„ØªÙ†Ø§ Ù…Ù† Ø§Ù„Ù…Ø±Ø§ÙŠØ§ Ø§Ù„Ù…Ø¶ÙŠØ¦Ø© Ø¨Ø¥Ø¶Ø§Ø¡Ø© LED Ø§Ù„Ù…Ø¯Ù…Ø¬Ø©ØŒ Ø¨ØªÙØ§ØµÙŠÙ„ Ø¹Ù…Ù„ÙŠØ© ÙˆØ£Ù†Ø§Ù‚Ø© ØªÙ†Ø§Ø³Ø¨ Ù…Ø®ØªÙ„Ù Ø§Ù„Ù…Ø³Ø§Ø­Ø§Øª."
       />
 
       <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
@@ -36,9 +38,9 @@ const siteData = getSiteData('ar');
   <section class="section-shell pt-4">
     <div class="container-shell">
       <SectionTitle
-        eyebrow="مختاراتنا"
-        title="منتجات مختارة من روح Cozy Space"
-        copy="تشكيلة بسيطة وأنيقة من المنتجات اليومية التي تجمع بين الاستعمال العملي واللمسة الجمالية."
+        eyebrow="Ù…Ø®ØªØ§Ø±Ø§ØªÙ†Ø§"
+        title="Ù…Ù†ØªØ¬Ø§Øª Ù…Ø®ØªØ§Ø±Ø© Ù…Ù† Ø±ÙˆØ­ Cozy Space"
+        copy="ØªØ´ÙƒÙŠÙ„Ø© Ø¨Ø³ÙŠØ·Ø© ÙˆØ£Ù†ÙŠÙ‚Ø© Ù…Ù† Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª Ø§Ù„ÙŠÙˆÙ…ÙŠØ© Ø§Ù„ØªÙŠ ØªØ¬Ù…Ø¹ Ø¨ÙŠÙ† Ø§Ù„Ø§Ø³ØªØ¹Ù…Ø§Ù„ Ø§Ù„Ø¹Ù…Ù„ÙŠ ÙˆØ§Ù„Ù„Ù…Ø³Ø© Ø§Ù„Ø¬Ù…Ø§Ù„ÙŠØ©."
       />
 
       <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
@@ -47,8 +49,8 @@ const siteData = getSiteData('ar');
             product={product}
             locale="ar"
             basePath="/ar"
-            detailLabel="عرض التفاصيل"
-            colorsLabel="الألوان"
+            detailLabel="Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„"
+            colorsLabel="Ø§Ù„Ø£Ù„ÙˆØ§Ù†"
           />
         ))}
       </div>
@@ -58,9 +60,9 @@ const siteData = getSiteData('ar');
   <section class="section-shell pt-4">
     <div class="container-shell">
       <SectionTitle
-        eyebrow="لماذا Cozy Space"
-        title="تجربة هادئة وسهلة وواضحة"
-        copy="واجهة بسيطة ومريحة على الهاتف والكمبيوتر، مع إمكانية تطوير المتجر وإضافة منتجات جديدة بسهولة."
+        eyebrow="Ù„Ù…Ø§Ø°Ø§ Cozy Space"
+        title="ØªØ¬Ø±Ø¨Ø© Ù‡Ø§Ø¯Ø¦Ø© ÙˆØ³Ù‡Ù„Ø© ÙˆÙˆØ§Ø¶Ø­Ø©"
+        copy="ÙˆØ§Ø¬Ù‡Ø© Ø¨Ø³ÙŠØ·Ø© ÙˆÙ…Ø±ÙŠØ­Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù‡Ø§ØªÙ ÙˆØ§Ù„ÙƒÙ…Ø¨ÙŠÙˆØªØ±ØŒ Ù…Ø¹ Ø¥Ù…ÙƒØ§Ù†ÙŠØ© ØªØ·ÙˆÙŠØ± Ø§Ù„Ù…ØªØ¬Ø± ÙˆØ¥Ø¶Ø§ÙØ© Ù…Ù†ØªØ¬Ø§Øª Ø¬Ø¯ÙŠØ¯Ø© Ø¨Ø³Ù‡ÙˆÙ„Ø©."
       />
       <div class="mt-10">
         <TrustBadges locale="ar" />
@@ -70,7 +72,7 @@ const siteData = getSiteData('ar');
 
   <CTASection
     locale="ar"
-    title="منتجات يومية بلمسة أنيقة"
-    copy="تصفح المجموعة الحالية واترك طلبك بسهولة، مع واجهة واضحة وسريعة ومناسبة لكل الشاشات."
+    title="Ù…Ù†ØªØ¬Ø§Øª ÙŠÙˆÙ…ÙŠØ© Ø¨Ù„Ù…Ø³Ø© Ø£Ù†ÙŠÙ‚Ø©"
+    copy="ØªØµÙØ­ Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø© Ø§Ù„Ø­Ø§Ù„ÙŠØ© ÙˆØ§ØªØ±Ùƒ Ø·Ù„Ø¨Ùƒ Ø¨Ø³Ù‡ÙˆÙ„Ø©ØŒ Ù…Ø¹ ÙˆØ§Ø¬Ù‡Ø© ÙˆØ§Ø¶Ø­Ø© ÙˆØ³Ø±ÙŠØ¹Ø© ÙˆÙ…Ù†Ø§Ø³Ø¨Ø© Ù„ÙƒÙ„ Ø§Ù„Ø´Ø§Ø´Ø§Øª."
   />
 </MainLayout>

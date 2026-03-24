@@ -62,6 +62,8 @@ export interface Product {
   featuresAr?: string[];
   availability: string;
   availabilityAr?: string;
+  quantity?: number;
+  published?: boolean;
   featured: boolean;
   tags: string[];
 }

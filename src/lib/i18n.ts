@@ -50,6 +50,8 @@ export const uiText = {
     },
     order: {
       title: 'Commander',
+      color: 'Couleur',
+      colorPlaceholder: 'Choisissez une couleur',
       firstName: 'Prenom',
       lastName: 'Nom',
       phone: 'Numero de telephone',
@@ -92,6 +94,8 @@ export const uiText = {
     },
     order: {
       title: 'اطلب',
+      color: 'اللون',
+      colorPlaceholder: 'اختر اللون',
       firstName: 'الاسم',
       lastName: 'اللقب',
       phone: 'رقم الهاتف',
