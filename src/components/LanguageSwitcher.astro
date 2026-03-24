@@ -8,7 +8,7 @@ interface Props {
 const { locale = 'fr' } = Astro.props as Props;
 ---
 
-<div class="fixed right-4 top-1/2 z-50 -translate-y-1/2">
+<div class:list={['fixed top-1/2 z-50 -translate-y-1/2', locale === 'ar' ? 'left-4' : 'right-4']}>
   <div class="flex flex-col overflow-hidden rounded-2xl border border-brand-line bg-white/95 shadow-premium backdrop-blur">
     <a
       id="lang-switch-fr"

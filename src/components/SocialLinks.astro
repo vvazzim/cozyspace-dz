@@ -1,15 +1,15 @@
 ---
-import { siteData } from '../data/site';
+import { type Locale, getSiteData } from '../lib/i18n';
 
 interface Props {
   inverted?: boolean;
   compact?: boolean;
+  locale?: Locale;
 }
 
-const { inverted = false, compact = false } = Astro.props as Props;
-const itemClass = inverted
-  ? 'text-white hover:text-brand-gold'
-  : 'text-brand-muted hover:text-brand-charcoal';
+const { inverted = false, compact = false, locale = 'fr' } = Astro.props as Props;
+const siteData = getSiteData(locale);
+const itemClass = inverted ? 'text-white hover:text-brand-gold' : 'text-brand-muted hover:text-brand-charcoal';
 ---
 
 <div class:list={['flex flex-wrap items-center gap-4', compact ? 'text-sm' : 'text-sm sm:text-base']}>

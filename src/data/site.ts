@@ -3,15 +3,15 @@ import type { SiteData } from '../lib/types';
 
 export const siteData: SiteData = {
   brandName: 'COZY SPACE DZ',
-  tagline: 'PRODUITS UTILES POUR LE QUOTIDIEN',
+  tagline: 'Produits utiles pour le quotidien',
   description:
-    'Boutique lifestyle douce et premium, autour d objets utiles du quotidien, d idees cadeaux et de petits essentiels choisis avec gout.',
+    'Boutique dediee aux produits pratiques et intelligents pour ameliorer votre confort au quotidien. Nous selectionnons avec soin des articles utiles, simples et efficaces.',
   primaryCTA: {
     label: 'Visiter la boutique',
     href: '/catalogue'
   },
   secondaryCTA: {
-    label: 'Decouvrir la collection',
+    label: 'A propos de nous',
     href: '/a-propos'
   },
   socialLinks: [
@@ -31,23 +31,23 @@ export const siteData: SiteData = {
       href: 'https://www.facebook.com/share/18BB6TfA1N/?mibextid=wwXIfr'
     }
   ],
-  heroBadge: 'Boutique lifestyle | Idees cadeaux | Essentiels du quotidien',
+  heroBadge: 'Produits utiles | Livraison Algerie | Paiement a la livraison',
   trustItems: [
     {
-      title: 'Selection utile',
-      description: 'Des objets choisis pour apporter quelque chose de concret au quotidien.'
+      title: 'Livraison rapide',
+      description: 'Expedition dans toute l Algerie avec suivi simple et confirmation claire.'
     },
     {
-      title: 'Univers doux',
-      description: 'Une direction visuelle sobre et chaleureuse inspiree du confort et du cadeau.'
+      title: 'Paiement a la livraison',
+      description: 'Vous payez uniquement lors de la reception de votre commande.'
     },
     {
-      title: 'Navigation simple',
-      description: 'Un catalogue leger, clair et facile a parcourir sur mobile comme sur desktop.'
+      title: 'Verification avant paiement',
+      description: 'Vous pouvez verifier le produit avant de finaliser le paiement.'
     },
     {
-      title: 'Marque evolutive',
-      description: 'Une base propre qui peut accueillir de nouvelles collections sans refonte.'
+      title: 'Service client reactif',
+      description: 'Notre equipe reste disponible pour repondre a vos questions rapidement.'
     }
   ]
 };
@@ -59,22 +59,22 @@ export const brandAssets = {
 
 export const aboutCopy = {
   intro:
-    'Cozy Space imagine une boutique douce et utile, ou les objets du quotidien gagnent en presence, en simplicite et en plaisir d offrir.',
+    'Chez Cozy Space DZ, notre mission est simple : vous faciliter le quotidien avec des produits intelligents, pratiques et accessibles.',
   mission:
-    'La marque met en avant des selections pratiques, esthetiques et faciles a adopter, dans une ambiance premium accessible inspiree du cocooning et des idees cadeaux.'
+    'Nous savons que les petits details du quotidien peuvent parfois devenir genants. C est pour cela que nous selectionnons soigneusement des produits utiles qui vous apportent confort, simplicite et efficacite.'
 };
 
 export const arabicSiteData: SiteData = {
   brandName: 'COZY SPACE DZ',
-  tagline: 'منتجات عملية للحياة اليومية',
+  tagline: 'منتجات مفيدة للحياة اليومية',
   description:
-    'متجر أنيق وهادئ يركز على المنتجات المفيدة يوميا، أفكار الهدايا، والقطع الصغيرة المختارة بذوق.',
+    'متجر متخصص في تقديم منتجات عملية وذكية لتحسين راحتك اليومية. نختار لك منتجات مفيدة، بسيطة وفعالة بعناية.',
   primaryCTA: {
     label: 'زيارة المتجر',
     href: '/ar/catalogue'
   },
   secondaryCTA: {
-    label: 'اكتشف المجموعة',
+    label: 'من نحن',
     href: '/ar/a-propos'
   },
   socialLinks: [
@@ -94,32 +94,32 @@ export const arabicSiteData: SiteData = {
       href: 'https://www.facebook.com/share/18BB6TfA1N/?mibextid=wwXIfr'
     }
   ],
-  heroBadge: 'متجر هدايا | أساسيات يومية | لمسة أنيقة',
+  heroBadge: 'منتجات مفيدة | توصيل لكل الولايات | الدفع عند الاستلام',
   trustItems: [
     {
-      title: 'اختيار مفيد',
-      description: 'منتجات مختارة لتضيف قيمة فعلية إلى الاستعمال اليومي.'
+      title: 'توصيل سريع',
+      description: 'نوفر التوصيل إلى جميع الولايات مع متابعة واضحة وسهلة.'
     },
     {
-      title: 'هوية هادئة',
-      description: 'أسلوب بصري بسيط ودافئ يمنح المتجر طابعا مريحا وأنيقا.'
+      title: 'الدفع عند الاستلام',
+      description: 'تدفع فقط عند استلام الطلب بكل راحة واطمئنان.'
     },
     {
-      title: 'تصفح سهل',
-      description: 'كتالوج خفيف وواضح وسهل الاستعمال على الهاتف والكمبيوتر.'
+      title: 'التحقق قبل الدفع',
+      description: 'يمكنك التأكد من المنتج قبل إتمام الدفع لضمان رضاك.'
     },
     {
-      title: 'علامة قابلة للتوسع',
-      description: 'قاعدة مرنة تسمح بإضافة مجموعات جديدة بسهولة لاحقا.'
+      title: 'خدمة عملاء متوفرة',
+      description: 'فريقنا مستعد للرد على استفساراتكم ومساعدتكم بسرعة.'
     }
   ]
 };
 
 export const arabicAboutCopy = {
   intro:
-    'تقدم Cozy Space رؤية لمتجر هادئ وعملي، حيث تصبح تفاصيل الحياة اليومية أكثر أناقة وبساطة ومتعة.',
+    'في Cozy Space DZ، مهمتنا بسيطة: تسهيل حياتك اليومية من خلال منتجات ذكية، عملية وبأسعار مناسبة.',
   mission:
-    'تركز العلامة على منتجات عملية وجميلة وسهلة الاعتماد في البيت أو كهدية، ضمن أجواء ناعمة وقريبة من أسلوب الحياة العصري.'
+    'نعلم أن التفاصيل الصغيرة في الحياة اليومية قد تكون مزعجة أحياناً. لهذا السبب نقوم باختيار منتجات مفيدة تمنحك الراحة، البساطة والفعالية.'
 };
 
 export { faqItems };

@@ -3,76 +3,159 @@ import MainLayout from '../layouts/MainLayout.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import ProductCard from '../components/ProductCard.astro';
 import { categories } from '../data/categories';
-import { getAvailableColors, getCatalogProducts, getProducts } from '../lib/product-source';
+import {
+  getAvailableColors,
+  getCatalogProducts,
+  getNewArrivalProducts,
+  getPopularProducts,
+  getProductCategoryKeys,
+  getPromotionProducts,
+  getProducts
+} from '../lib/product-source';
 
 const products = await getProducts();
 const catalogProducts = getCatalogProducts(products);
+const popularProducts = getPopularProducts(catalogProducts);
+const newProducts = getNewArrivalProducts(catalogProducts);
+const promotionProducts = getPromotionProducts(catalogProducts);
+
+const sections = [
+  {
+    id: 'popular',
+    title: 'Produits populaires',
+    copy: 'Ce que les gens achetent le plus',
+    products: popularProducts
+  },
+  {
+    id: 'new',
+    title: 'Nouveautes',
+    copy: 'Nouveaux produits',
+    products: newProducts
+  },
+  {
+    id: 'sale',
+    title: 'Promotions',
+    copy: 'Produits en reduction',
+    products: promotionProducts
+  }
+].filter((section) => section.products.length > 0);
 ---
 
-<MainLayout
-  title="Catalogue"
-  description="Catalogue leger et premium de demonstration pour Cozy Space, avec categories simples et fiches produit dynamiques."
->
+<MainLayout title="Catalogue" description="Decouvrez nos produits selectionnes pour simplifier votre quotidien.">
   <section class="section-shell">
     <div class="container-shell">
       <SectionTitle
         eyebrow="Catalogue"
-        title="Miroirs lumineux"
-        copy="Collection de miroirs lumineux avec eclairage LED integre. Design moderne et elegant pour votre salle de bain ou dressing."
+        title="Catalogue"
+        copy="Decouvrez nos produits selectionnes pour simplifier votre quotidien"
       />
 
-      <div class="mt-8 flex flex-wrap gap-3" id="filters">
-        <button class="rounded-full border border-brand-gold/40 bg-white px-4 py-2 text-sm font-medium text-brand-charcoal" data-filter="all">Tout voir</button>
-        {categories.map((category) => (
-          <button id={category.slug} class="rounded-full border border-brand-line bg-white/80 px-4 py-2 text-sm font-medium text-brand-muted hover:text-brand-charcoal" data-filter={category.name}>
-            {category.name}
-          </button>
-        ))}
+      <div class="mt-8 rounded-[2rem] border border-brand-line bg-white p-4 shadow-soft sm:p-5">
+        <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <label class="flex items-center gap-3 rounded-full border border-brand-line bg-brand-bg px-4 py-3">
+            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-brand-muted" stroke-width="1.8">
+              <circle cx="11" cy="11" r="6"></circle>
+              <path d="M20 20l-4.2-4.2" stroke-linecap="round"></path>
+            </svg>
+            <input
+              id="catalog-search"
+              type="search"
+              placeholder="Rechercher un produit..."
+              class="w-full bg-transparent text-sm text-brand-charcoal outline-none"
+            />
+          </label>
+
+          <div id="filters" class="flex flex-wrap gap-3">
+            <button class="rounded-full border border-brand-gold/40 bg-white px-4 py-2 text-sm font-medium text-brand-charcoal" data-filter="all">
+              Tous
+            </button>
+            {categories.map((category) => (
+              <button
+                id={category.slug}
+                class="rounded-full border border-brand-line bg-white/80 px-4 py-2 text-sm font-medium text-brand-muted hover:text-brand-charcoal"
+                data-filter={category.slug}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4" id="catalog-grid">
-        {catalogProducts.map((product) => (
-          <div data-category={product.category}>
-            <ProductCard product={product} availableColors={getAvailableColors(products, product.slug, product.variantGroup)} />
-          </div>
+      <div class="mt-10 space-y-12" id="catalog-sections">
+        {sections.map((section) => (
+          <section data-section={section.id}>
+            <div class="mb-5 flex items-end justify-between gap-4">
+              <div>
+                <h2 class="text-2xl font-semibold text-brand-charcoal">{section.title}</h2>
+                <p class="mt-2 text-sm text-brand-muted">{section.copy}</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {section.products.slice(0, 4).map((product) => (
+                <div
+                  data-card
+                  data-name={`${product.name} ${product.baseName || ''} ${product.tags.join(' ')}`}
+                  data-category={getProductCategoryKeys(product).join('|')}
+                >
+                  <ProductCard
+                    product={product}
+                    availableColors={getAvailableColors(products, product.slug, product.variantGroup)}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
         ))}
       </div>
     </div>
   </section>
 
-  <script>
-    const buttons = Array.from(document.querySelectorAll('[data-filter]'));
-    const items = Array.from(document.querySelectorAll('[data-category]'));
+  <script is:inline>
+    (() => {
+      const buttons = Array.from(document.querySelectorAll('[data-filter]'));
+      const cards = Array.from(document.querySelectorAll('[data-card]'));
+      const sections = Array.from(document.querySelectorAll('[data-section]'));
+      const searchInput = document.getElementById('catalog-search');
+      let activeFilter = 'all';
 
-    function setActive(button) {
-      buttons.forEach((btn) => {
-        btn.classList.remove('border-brand-gold/40', 'text-brand-charcoal');
-        btn.classList.add('border-brand-line', 'text-brand-muted');
+      const setActive = (button) => {
+        buttons.forEach((btn) => {
+          btn.classList.remove('border-brand-gold/40', 'text-brand-charcoal');
+          btn.classList.add('border-brand-line', 'text-brand-muted');
+        });
+        button.classList.remove('border-brand-line', 'text-brand-muted');
+        button.classList.add('border-brand-gold/40', 'text-brand-charcoal');
+      };
+
+      const applyFilters = () => {
+        const query = String(searchInput?.value || '').trim().toLowerCase();
+
+        cards.forEach((card) => {
+          const category = card.getAttribute('data-category') || '';
+          const name = (card.getAttribute('data-name') || '').toLowerCase();
+          const matchesFilter = activeFilter === 'all' || category.split('|').includes(activeFilter);
+          const matchesSearch = !query || name.includes(query);
+          card.style.display = matchesFilter && matchesSearch ? '' : 'none';
+        });
+
+        sections.forEach((section) => {
+          const visibleCards = Array.from(section.querySelectorAll('[data-card]')).filter((card) => card.style.display !== 'none');
+          section.style.display = visibleCards.length ? '' : 'none';
+        });
+      };
+
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          activeFilter = button.getAttribute('data-filter') || 'all';
+          setActive(button);
+          applyFilters();
+        });
       });
-      button.classList.remove('border-brand-line', 'text-brand-muted');
-      button.classList.add('border-brand-gold/40', 'text-brand-charcoal');
-    }
 
-    function applyFilter(value) {
-      items.forEach((item) => {
-        const match = value === 'all' || item.getAttribute('data-category') === value;
-        item.style.display = match ? '' : 'none';
-      });
-    }
-
-    buttons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const value = button.getAttribute('data-filter') || 'all';
-        setActive(button);
-        applyFilter(value);
-      });
-    });
-
-    const hash = window.location.hash.replace('#', '');
-    const initialButton = buttons.find((button) => button.id === hash);
-    if (initialButton) {
-      setActive(initialButton);
-      applyFilter(initialButton.getAttribute('data-filter') || 'all');
-    }
+      searchInput?.addEventListener('input', applyFilters);
+      applyFilters();
+    })();
   </script>
 </MainLayout>

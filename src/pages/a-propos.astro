@@ -1,46 +1,44 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
-import SectionTitle from '../components/SectionTitle.astro';
-import CTASection from '../components/CTASection.astro';
-import { aboutCopy, brandAssets, siteData } from '../data/site';
 ---
 
-<MainLayout title="A propos" description={aboutCopy.intro}>
+<MainLayout title="À propos" description="Découvrez la mission de Cozy Space DZ et les valeurs qui guident notre sélection de produits.">
   <section class="section-shell">
     <div class="container-shell">
-      <div class="grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-        <div class="card-shell overflow-hidden p-5 sm:p-6">
-          <img src={brandAssets.banner} alt="Univers de marque Cozy Space" class="w-full rounded-[1.5rem] object-cover shadow-soft" />
+      <div class="mx-auto max-w-4xl">
+        <div class="eyebrow">À propos de nous</div>
+        <h1 class="mt-4 text-4xl font-semibold text-brand-charcoal sm:text-5xl">Une boutique pensée pour simplifier votre quotidien</h1>
+        <div class="mt-8 space-y-5 text-sm leading-8 text-brand-muted sm:text-base">
+          <p>Chez Cozy Space DZ, notre mission est simple : vous faciliter le quotidien avec des produits intelligents, pratiques et accessibles.</p>
+          <p>Nous savons que les petits détails du quotidien peuvent parfois devenir gênants. C’est pour cela que nous sélectionnons soigneusement des produits utiles qui vous apportent confort, simplicité et efficacité.</p>
+          <p>Nous mettons un point d’honneur à proposer des articles testés, fiables et adaptés à vos besoins, afin de vous offrir la meilleure expérience possible.</p>
         </div>
 
-        <div>
-          <SectionTitle
-            eyebrow="Univers de marque"
-            title="Une boutique douce, utile et facile a faire evoluer"
-            copy={aboutCopy.intro}
-          />
+        <div class="mt-10 grid gap-4 sm:grid-cols-2">
+          <article class="card-shell p-6">
+            <h2 class="text-xl font-semibold text-brand-charcoal">Pourquoi nous faire confiance ?</h2>
+            <ul class="mt-4 space-y-3 text-sm leading-7 text-brand-muted">
+              <li>• Livraison disponible dans toute l’Algérie</li>
+              <li>• Paiement à la livraison</li>
+              <li>• Produits testés et approuvés</li>
+              <li>• Service client réactif</li>
+            </ul>
+          </article>
 
-          <p class="mt-6 max-w-2xl text-sm leading-7 text-brand-muted sm:text-base">
-            {aboutCopy.mission}
+          <article class="card-shell p-6">
+            <h2 class="text-xl font-semibold text-brand-charcoal">Notre engagement</h2>
+            <p class="mt-4 text-sm leading-7 text-brand-muted">
+              Aujourd’hui, des dizaines de clients en Algérie nous font déjà confiance et utilisent nos produits au quotidien. Cozy Space DZ, ce n’est pas juste une boutique, c’est une solution pour améliorer votre confort chaque jour.
+            </p>
+          </article>
+        </div>
+
+        <div class="mt-10 rounded-[2rem] border border-brand-line bg-white p-6 shadow-soft sm:p-8">
+          <p class="text-sm leading-8 text-brand-muted sm:text-base">
+            Rejoignez-nous dès maintenant et découvrez des produits qui font vraiment la différence.
           </p>
-
-          <div class="mt-8 grid gap-4 sm:grid-cols-2">
-            <article class="card-shell p-5">
-              <h3 class="text-lg font-semibold text-brand-charcoal">Esprit quotidien</h3>
-              <p class="mt-2 text-sm leading-7 text-brand-muted">Des objets utiles, faciles a integrer dans la maison, les routines ou les petites attentions du quotidien.</p>
-            </article>
-            <article class="card-shell p-5">
-              <h3 class="text-lg font-semibold text-brand-charcoal">Direction visuelle douce</h3>
-              <p class="mt-2 text-sm leading-7 text-brand-muted">Le logo, les teintes grises, le noir et le dore composent un univers sobre, feminin-universel et rassurant.</p>
-            </article>
-          </div>
         </div>
       </div>
     </div>
   </section>
-
-  <CTASection
-    title="Le template est pret a etre enrichi avec les vraies collections"
-    copy="Les categories, les produits, les prix, les visuels et les informations de contact peuvent etre remplaces rapidement depuis les fichiers de donnees centralises."
-  />
 </MainLayout>

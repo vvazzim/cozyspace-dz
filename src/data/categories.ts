@@ -1,34 +1,40 @@
 import type { Category } from '../lib/types';
 
 export const categories: Category[] = [
-  // {
-  //   id: 'decoration-utile',
-  //   slug: 'decoration-utile',
-  //   name: 'Decoration utile',
-  //   description: 'Des objets sobres pour embellir le quotidien sans surcharger l espace.',
-  //   image: '/images/categories/decoration-utile.svg'
-  // },
-  // {
-  //   id: 'bien-etre',
-  //   slug: 'bien-etre',
-  //   name: 'Bien-etre',
-  //   description: 'Des essentiels doux a integrer dans vos routines et moments de pause.',
-  //   image: '/images/categories/bien-etre.svg'
-  // },
   {
-    id: 'accessoires-du-quotidien',
-    slug: 'accessoires-du-quotidien',
-    name: 'Accessoires du quotidien',
-    nameAr: 'اكسسوارات يومية',
-    description: 'Des pieces utiles, discretes et faciles a offrir ou a garder pour soi.',
-    descriptionAr: 'قطع عملية وأنيقة وسهلة للاستخدام اليومي أو للتقديم كهدية.',
+    id: 'maison',
+    slug: 'maison',
+    name: 'Maison',
+    nameAr: 'المنزل',
+    description: 'Des produits utiles pour simplifier et embellir les gestes du quotidien a la maison.',
+    descriptionAr: 'منتجات مفيدة تسهل تفاصيل الحياة اليومية داخل المنزل.',
     image: '/images/categories/accessoires-du-quotidien.svg'
   },
-  // {
-  //   id: 'idees-cadeaux',
-  //   slug: 'idees-cadeaux',
-  //   name: 'Idees cadeaux',
-  //   description: 'Une selection simple et elegante pour faire plaisir avec intention.',
-  //   image: '/images/categories/idees-cadeaux.svg'
-  // }
+  {
+    id: 'voiture',
+    slug: 'voiture',
+    name: 'Voiture',
+    nameAr: 'السيارة',
+    description: 'Des accessoires pratiques pour gagner en confort et en autonomie pendant les trajets.',
+    descriptionAr: 'إكسسوارات عملية تمنحك راحة أكبر أثناء التنقل في السيارة.',
+    image: '/images/categories/accessoires-du-quotidien.svg'
+  },
+  {
+    id: 'organisation',
+    slug: 'organisation',
+    name: 'Organisation',
+    nameAr: 'التنظيم',
+    description: 'Des solutions simples pour ranger, organiser et garder un espace clair.',
+    descriptionAr: 'حلول ذكية للترتيب والتنظيم والحفاظ على مساحة مرتبة.',
+    image: '/images/categories/accessoires-du-quotidien.svg'
+  },
+  {
+    id: 'beaute',
+    slug: 'beaute',
+    name: 'Beaute',
+    nameAr: 'الجمال',
+    description: 'Des essentiels pratiques pour les routines beaute et le confort au quotidien.',
+    descriptionAr: 'منتجات عملية لروتين الجمال والعناية اليومية.',
+    image: '/images/categories/accessoires-du-quotidien.svg'
+  }
 ];

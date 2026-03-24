@@ -60,6 +60,8 @@ export interface Product {
   shortDescriptionAr?: string;
   features: string[];
   featuresAr?: string[];
+  reasons?: string[];
+  reasonsAr?: string[];
   availability: string;
   availabilityAr?: string;
   quantity?: number;

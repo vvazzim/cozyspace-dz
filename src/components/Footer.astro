@@ -9,6 +9,8 @@ interface Props {
 
 const { locale = 'fr' } = Astro.props as Props;
 const siteData = getSiteData(locale);
+const developerEmail = 'chikhimedwassim@gmail.com';
+const developerGithub = 'https://github.com/vvazzim';
 ---
 
 <footer class="mt-20 border-t border-brand-line bg-brand-charcoal">
@@ -22,7 +24,11 @@ const siteData = getSiteData(locale);
             <div class="text-xs text-white/65">{siteData.tagline}</div>
           </div>
         </div>
-        <p class="mt-4 max-w-md text-sm leading-7 text-white">{siteData.description}</p>
+        <p class="mt-4 max-w-md text-sm leading-7 text-white">
+          {locale === 'ar'
+            ? 'متجر متخصص في تقديم منتجات عملية وذكية لتحسين راحتك اليومية.'
+            : 'Boutique dédiée aux produits pratiques et intelligents pour améliorer votre confort au quotidien.'}
+        </p>
       </div>
 
       <div>
@@ -36,14 +42,40 @@ const siteData = getSiteData(locale);
       </div>
 
       <div>
-        <div class="text-sm font-semibold uppercase tracking-brand text-white">Reseaux sociaux</div>
+        <div class="text-sm font-semibold uppercase tracking-brand text-white">Réseaux sociaux</div>
         <div class="mt-4">
-          <SocialLinks compact inverted />
+          <SocialLinks compact inverted locale={locale} />
         </div>
       </div>
     </div>
 
-    <div class="mt-10 h-px w-full bg-gradient-to-r from-transparent via-brand-gold/60 to-transparent"></div>
-    <p class="mt-6 text-xs text-white/70">2025 {siteData.brandName}.</p>
+    <div class="mt-10 flex flex-wrap items-center gap-4 text-xs text-white/70">
+      <span>2026 {siteData.brandName}</span>
+
+      <a
+        href={developerGithub}
+        target="_blank"
+        rel="noreferrer"
+        class="inline-flex items-center gap-2 hover:text-brand-gold"
+        aria-label="Profil GitHub vvazzim"
+      >
+        <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+          <path d="M12 .5a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.42-4.04-1.42-.55-1.38-1.33-1.74-1.33-1.74-1.09-.73.08-.72.08-.72 1.2.08 1.84 1.22 1.84 1.22 1.08 1.82 2.82 1.3 3.5 1 .11-.77.42-1.3.77-1.6-2.66-.3-5.47-1.31-5.47-5.86 0-1.3.47-2.37 1.24-3.21-.12-.3-.54-1.54.12-3.19 0 0 1.01-.32 3.3 1.22a11.6 11.6 0 0 1 6 0c2.29-1.54 3.3-1.22 3.3-1.22.66 1.65.24 2.89.12 3.19.77.84 1.24 1.91 1.24 3.21 0 4.56-2.82 5.55-5.5 5.84.43.37.82 1.1.82 2.22v3.29c0 .32.22.69.83.58A12 12 0 0 0 12 .5Z"></path>
+        </svg>
+        <span>vvazzim</span>
+      </a>
+
+      <a
+        href={`mailto:${developerEmail}?subject=Contact%20site%20Cozy%20Space%20DZ`}
+        class="inline-flex items-center gap-2 hover:text-brand-gold"
+        aria-label="Contacter le developpeur par email"
+      >
+        <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current" stroke-width="1.8" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+          <path d="m4 8 8 6 8-6" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span>{developerEmail}</span>
+      </a>
+    </div>
   </div>
 </footer>

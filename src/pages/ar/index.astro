@@ -1,78 +1,91 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro';
-import Hero from '../../components/Hero.astro';
 import SectionTitle from '../../components/SectionTitle.astro';
-import CategoryCard from '../../components/CategoryCard.astro';
 import ProductCard from '../../components/ProductCard.astro';
-import TrustBadges from '../../components/TrustBadges.astro';
-import CTASection from '../../components/CTASection.astro';
-import { categories } from '../../data/categories';
-import { getSiteData } from '../../lib/i18n';
-import { getFeaturedProducts, getProducts } from '../../lib/product-source';
+import { getAvailableColors, getCatalogProducts, getNewArrivalProducts, getPopularProducts, getProducts, getPromotionProducts } from '../../lib/product-source';
 
-const siteData = getSiteData('ar');
 const products = await getProducts();
-const featuredProducts = getFeaturedProducts(products);
+const catalogProducts = getCatalogProducts(products);
+const promotions = getPromotionProducts(catalogProducts);
+const popularProducts = getPopularProducts(catalogProducts);
+const newProducts = getNewArrivalProducts(catalogProducts);
 ---
 
-<MainLayout locale="ar" title="Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©" description={siteData.description}>
-  <Hero
-    locale="ar"
-    descriptionText="Ù…Ù†ØªØ¬Ø§Øª Ø¹Ù…Ù„ÙŠØ© ÙˆÙ…Ø±ØªØ¨Ø© Ø¨Ø¹Ù†Ø§ÙŠØ© Ù„Ù„Ø­ÙŠØ§Ø© Ø§Ù„ÙŠÙˆÙ…ÙŠØ©ØŒ Ù„Ù„Ù‡Ø¯Ø§ÙŠØ§ØŒ ÙˆÙ„Ù„ØªÙØ§ØµÙŠÙ„ Ø§Ù„ØµØºÙŠØ±Ø© Ø§Ù„ØªÙŠ ØªÙ…Ù†Ø­ Ø§Ù„Ø¨ÙŠØª Ù„Ù…Ø³Ø© Ø£Ø¬Ù…Ù„."
-  />
+<MainLayout locale="ar" title="الرئيسية" description="منتجات مفيدة وموثوقة مختارة بعناية لتسهيل حياتك اليومية.">
+  <section class="section-shell pt-8">
+    <div class="container-shell space-y-12">
+      {promotions.length > 0 && (
+        <section>
+          <SectionTitle eyebrow="العروض" title="منتجات مخفضة" copy="المنتجات المخفضة تظهر هنا بشكل تلقائي." />
+          <div class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {promotions.map((product) => (
+              <ProductCard
+                product={product}
+                locale="ar"
+                basePath="/ar"
+                availableColors={getAvailableColors(products, product.slug, product.variantGroup, 'ar')}
+                detailLabel="عرض المنتج"
+                colorsLabel="الألوان"
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
-  <section class="section-shell pt-2">
-    <div class="container-shell">
-      <SectionTitle
-        eyebrow="Ø§Ù„ÙØ¦Ø§Øª"
-        title="Ù…Ø±Ø§ÙŠØ§ Ù…Ø¶ÙŠØ¦Ø© Ø¨ØªØµÙ…ÙŠÙ… Ø±Ø§Ù‚"
-        copy="Ø§ÙƒØªØ´Ù ØªØ´ÙƒÙŠÙ„ØªÙ†Ø§ Ù…Ù† Ø§Ù„Ù…Ø±Ø§ÙŠØ§ Ø§Ù„Ù…Ø¶ÙŠØ¦Ø© Ø¨Ø¥Ø¶Ø§Ø¡Ø© LED Ø§Ù„Ù…Ø¯Ù…Ø¬Ø©ØŒ Ø¨ØªÙØ§ØµÙŠÙ„ Ø¹Ù…Ù„ÙŠØ© ÙˆØ£Ù†Ø§Ù‚Ø© ØªÙ†Ø§Ø³Ø¨ Ù…Ø®ØªÙ„Ù Ø§Ù„Ù…Ø³Ø§Ø­Ø§Øª."
-      />
+      <section>
+        <SectionTitle
+          eyebrow="المنتجات الأكثر طلباً"
+          title="منتجات مطلوبة"
+          copy="المنتجات التي يشتريها العملاء أكثر في الوقت الحالي."
+        />
+        <div class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {popularProducts.map((product) => (
+            <ProductCard
+              product={product}
+              locale="ar"
+              basePath="/ar"
+              availableColors={getAvailableColors(products, product.slug, product.variantGroup, 'ar')}
+              detailLabel="عرض المنتج"
+              colorsLabel="الألوان"
+            />
+          ))}
+        </div>
+      </section>
 
-      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        {categories.map((category) => <CategoryCard category={category} locale="ar" basePath="/ar" />)}
-      </div>
+      <section>
+        <SectionTitle eyebrow="منتجات جديدة" title="آخر الإضافات" copy="المنتجات الجديدة تضاف هنا تلقائياً عند إدخالها." />
+        <div class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {newProducts.map((product) => (
+            <ProductCard
+              product={product}
+              locale="ar"
+              basePath="/ar"
+              availableColors={getAvailableColors(products, product.slug, product.variantGroup, 'ar')}
+              detailLabel="عرض المنتج"
+              colorsLabel="الألوان"
+            />
+          ))}
+        </div>
+      </section>
+
+      <section class="card-shell p-8 sm:p-10">
+        <h2 class="text-2xl font-semibold text-brand-charcoal">ثقتكم هي أولويتنا</h2>
+        <p class="mt-4 max-w-4xl text-sm leading-8 text-brand-muted sm:text-base">
+          في Cozy Space DZ، نلتزم بتقديم منتجات مفيدة، موثوقة وعالية الجودة، تم اختيارها بعناية لتسهيل حياتك اليومية.
+        </p>
+        <ul class="mt-6 space-y-3 text-sm leading-8 text-brand-muted sm:text-base">
+          <li>• توصيل سريع إلى جميع ولايات الجزائر.</li>
+          <li>• الدفع عند الاستلام.</li>
+          <li>• إمكانية التحقق من المنتج قبل الدفع.</li>
+          <li>• خدمة عملاء متوفرة للاستماع ومساعدتك.</li>
+        </ul>
+        <p class="mt-6 max-w-4xl text-sm leading-8 text-brand-muted sm:text-base">
+          رضاكم في صميم مهمتنا. نبذل كل ما بوسعنا لتقديم تجربة بسيطة، آمنة ومريحة.
+        </p>
+        <a href="mailto:cozyspace.dz@gmail.com?subject=Réclamation%20Cozy%20Space%20DZ" class="btn-primary mt-6">
+          إرسال شكوى
+        </a>
+      </section>
     </div>
   </section>
-
-  <section class="section-shell pt-4">
-    <div class="container-shell">
-      <SectionTitle
-        eyebrow="Ù…Ø®ØªØ§Ø±Ø§ØªÙ†Ø§"
-        title="Ù…Ù†ØªØ¬Ø§Øª Ù…Ø®ØªØ§Ø±Ø© Ù…Ù† Ø±ÙˆØ­ Cozy Space"
-        copy="ØªØ´ÙƒÙŠÙ„Ø© Ø¨Ø³ÙŠØ·Ø© ÙˆØ£Ù†ÙŠÙ‚Ø© Ù…Ù† Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª Ø§Ù„ÙŠÙˆÙ…ÙŠØ© Ø§Ù„ØªÙŠ ØªØ¬Ù…Ø¹ Ø¨ÙŠÙ† Ø§Ù„Ø§Ø³ØªØ¹Ù…Ø§Ù„ Ø§Ù„Ø¹Ù…Ù„ÙŠ ÙˆØ§Ù„Ù„Ù…Ø³Ø© Ø§Ù„Ø¬Ù…Ø§Ù„ÙŠØ©."
-      />
-
-      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        {featuredProducts.slice(0, 4).map((product) => (
-          <ProductCard
-            product={product}
-            locale="ar"
-            basePath="/ar"
-            detailLabel="Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„"
-            colorsLabel="Ø§Ù„Ø£Ù„ÙˆØ§Ù†"
-          />
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="section-shell pt-4">
-    <div class="container-shell">
-      <SectionTitle
-        eyebrow="Ù„Ù…Ø§Ø°Ø§ Cozy Space"
-        title="ØªØ¬Ø±Ø¨Ø© Ù‡Ø§Ø¯Ø¦Ø© ÙˆØ³Ù‡Ù„Ø© ÙˆÙˆØ§Ø¶Ø­Ø©"
-        copy="ÙˆØ§Ø¬Ù‡Ø© Ø¨Ø³ÙŠØ·Ø© ÙˆÙ…Ø±ÙŠØ­Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù‡Ø§ØªÙ ÙˆØ§Ù„ÙƒÙ…Ø¨ÙŠÙˆØªØ±ØŒ Ù…Ø¹ Ø¥Ù…ÙƒØ§Ù†ÙŠØ© ØªØ·ÙˆÙŠØ± Ø§Ù„Ù…ØªØ¬Ø± ÙˆØ¥Ø¶Ø§ÙØ© Ù…Ù†ØªØ¬Ø§Øª Ø¬Ø¯ÙŠØ¯Ø© Ø¨Ø³Ù‡ÙˆÙ„Ø©."
-      />
-      <div class="mt-10">
-        <TrustBadges locale="ar" />
-      </div>
-    </div>
-  </section>
-
-  <CTASection
-    locale="ar"
-    title="Ù…Ù†ØªØ¬Ø§Øª ÙŠÙˆÙ…ÙŠØ© Ø¨Ù„Ù…Ø³Ø© Ø£Ù†ÙŠÙ‚Ø©"
-    copy="ØªØµÙØ­ Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹Ø© Ø§Ù„Ø­Ø§Ù„ÙŠØ© ÙˆØ§ØªØ±Ùƒ Ø·Ù„Ø¨Ùƒ Ø¨Ø³Ù‡ÙˆÙ„Ø©ØŒ Ù…Ø¹ ÙˆØ§Ø¬Ù‡Ø© ÙˆØ§Ø¶Ø­Ø© ÙˆØ³Ø±ÙŠØ¹Ø© ÙˆÙ…Ù†Ø§Ø³Ø¨Ø© Ù„ÙƒÙ„ Ø§Ù„Ø´Ø§Ø´Ø§Øª."
-  />
 </MainLayout>

@@ -1,40 +1,39 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
-import SectionTitle from '../components/SectionTitle.astro';
-import SocialLinks from '../components/SocialLinks.astro';
 import FAQ from '../components/FAQ.astro';
-import { faqItems, siteData } from '../data/site';
+import SocialLinks from '../components/SocialLinks.astro';
+import { faqItems } from '../data/faq';
 ---
 
-<MainLayout title="Contact" description="Contactez Cozy Space et consultez une FAQ simple et utile.">
+<MainLayout title="Contactez-nous" description="Notre équipe est à votre disposition pour répondre à toutes vos questions concernant nos produits, votre commande ou la livraison.">
   <section class="section-shell">
     <div class="container-shell">
       <div class="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
         <div class="card-shell p-8 sm:p-10">
-          <SectionTitle
-            eyebrow="Contact"
-            title="Une page simple pour vous orienter"
-            copy="Si vous souhaitez commander ou demander un complement d information, commencez par le catalogue puis utilisez la fiche produit adaptee."
-          />
+          <div class="eyebrow">Contactez-nous</div>
+          <h1 class="mt-4 text-4xl font-semibold text-brand-charcoal">Nous sommes à votre écoute</h1>
+          <div class="mt-6 space-y-4 text-sm leading-8 text-brand-muted sm:text-base">
+            <p>Notre équipe est à votre disposition pour répondre à toutes vos questions concernant nos produits, votre commande ou la livraison.</p>
+            <p>N’hésitez pas à nous contacter, nous serons ravis de vous aider.</p>
+          </div>
+
+          <div class="mt-8 rounded-[1.75rem] border border-brand-line bg-brand-bg p-5">
+            <p class="text-sm font-semibold text-brand-charcoal">Horaires de réponse</p>
+            <p class="mt-2 text-sm leading-7 text-brand-muted">Tous les jours : 8h00 - 21h00</p>
+            <p class="mt-4 text-sm font-semibold text-brand-charcoal">Moyens de contact</p>
+            <a href="mailto:cozyspace.dz@gmail.com" class="mt-2 inline-block text-sm font-medium text-brand-charcoal underline underline-offset-4">
+              cozyspace.dz@gmail.com
+            </a>
+          </div>
 
           <div class="mt-8">
             <SocialLinks />
           </div>
-
-          <div class="mt-8 rounded-3xl border border-brand-line bg-brand-bg p-5">
-            <p class="text-sm leading-7 text-brand-muted">
-              CTA principal actuel : <span class="font-medium text-brand-charcoal">{siteData.primaryCTA.label}</span>
-            </p>
-            <a href={siteData.primaryCTA.href} class="btn-primary mt-4">{siteData.primaryCTA.label}</a>
-          </div>
         </div>
 
         <div>
-          <SectionTitle
-            eyebrow="FAQ"
-            title="Quelques reponses utiles"
-            copy="Une base courte pour rester claire et rassurante sans inventer de conditions, de delais ou de policies non confirmes."
-          />
+          <div class="eyebrow">FAQ</div>
+          <h2 class="mt-4 text-3xl font-semibold text-brand-charcoal">Questions fréquentes</h2>
           <div class="mt-8">
             <FAQ items={faqItems} />
           </div>

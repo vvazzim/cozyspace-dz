@@ -1,62 +1,64 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
-import Hero from '../components/Hero.astro';
 import SectionTitle from '../components/SectionTitle.astro';
-import CategoryCard from '../components/CategoryCard.astro';
 import ProductCard from '../components/ProductCard.astro';
-import TrustBadges from '../components/TrustBadges.astro';
-import CTASection from '../components/CTASection.astro';
-import { categories } from '../data/categories';
-import { siteData } from '../data/site';
-import { getFeaturedProducts, getProducts } from '../lib/product-source';
+import { getAvailableColors, getCatalogProducts, getNewArrivalProducts, getPopularProducts, getPromotionProducts, getProducts } from '../lib/product-source';
 
 const products = await getProducts();
-const featuredProducts = getFeaturedProducts(products);
+const catalogProducts = getCatalogProducts(products);
+const promotions = getPromotionProducts(catalogProducts);
+const popularProducts = getPopularProducts(catalogProducts);
+const newProducts = getNewArrivalProducts(catalogProducts);
 ---
 
-<MainLayout title="Accueil" description={siteData.description}>
-  <Hero />
+<MainLayout title="Accueil" description="Produits utiles, fiables et sélectionnés avec soin pour faciliter votre quotidien.">
+  <section class="section-shell pt-8">
+    <div class="container-shell space-y-12">
+      {promotions.length > 0 && (
+        <section>
+          <SectionTitle eyebrow="Promotions" title="Produits en solde" copy="Les produits en réduction à liquider en priorité." />
+          <div class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {promotions.map((product) => (
+              <ProductCard product={product} availableColors={getAvailableColors(products, product.slug, product.variantGroup)} />
+            ))}
+          </div>
+        </section>
+      )}
 
-  <section class="section-shell pt-2">
-    <div class="container-shell">
-      <SectionTitle
-        eyebrow="Categories"
-        title="Miroirs lumineux haut de gamme"
-        copy="Decouvrez nos miroirs lumineux avec eclairage LED integre. Design moderne, finition elegante noir et blanc pour sublimer votre espace."
-      />
+      <section>
+        <SectionTitle eyebrow="Produits les plus demandés" title="Produits populaires" copy="Ce que les clients choisissent le plus en ce moment." />
+        <div class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {popularProducts.map((product) => (
+            <ProductCard product={product} availableColors={getAvailableColors(products, product.slug, product.variantGroup)} />
+          ))}
+        </div>
+      </section>
 
-      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        {categories.map((category) => <CategoryCard category={category} />)}
-      </div>
+      <section>
+        <SectionTitle eyebrow="Nouveautés" title="Les derniers produits ajoutés" copy="Les nouvelles références apparaissent ici automatiquement." />
+        <div class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {newProducts.map((product) => (
+            <ProductCard product={product} availableColors={getAvailableColors(products, product.slug, product.variantGroup)} />
+          ))}
+        </div>
+      </section>
+
+      <section class="card-shell p-8 sm:p-10">
+        <h2 class="text-2xl font-semibold text-brand-charcoal">Votre confiance est notre priorité</h2>
+        <p class="mt-4 max-w-4xl text-sm leading-7 text-brand-muted sm:text-base">
+          Chez Cozy Space DZ, nous nous engageons à vous offrir des produits utiles, fiables et de qualité, sélectionnés avec soin pour faciliter votre quotidien.
+        </p>
+        <ul class="mt-6 grid gap-3 text-sm text-brand-muted sm:grid-cols-2">
+          <li>• Livraison rapide dans toute l’Algérie</li>
+          <li>• Paiement à la livraison</li>
+          <li>• Possibilité de vérifier le produit avant de payer</li>
+          <li>• Service client disponible et à votre écoute</li>
+        </ul>
+        <p class="mt-6 max-w-4xl text-sm leading-7 text-brand-muted sm:text-base">
+          Votre satisfaction est au cœur de notre mission. Nous faisons de notre mieux pour vous offrir une expérience simple, sécurisée et agréable.
+        </p>
+        <a href="mailto:cozyspace.dz@gmail.com?subject=Réclamation%20Cozy%20Space%20DZ" class="btn-primary mt-6">Faire une réclamation</a>
+      </section>
     </div>
   </section>
-
-  <section class="section-shell pt-4">
-    <div class="container-shell">
-      <SectionTitle
-        eyebrow="Selection coup de coeur"
-        title="Quelques produits demo dans l'esprit Cozy Space"
-        copy="Des produits de demonstration coherents avec une boutique lifestyle, idees cadeaux et objets utiles du quotidien."
-      />
-
-      <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        {featuredProducts.slice(0, 4).map((product) => <ProductCard product={product} />)}
-      </div>
-    </div>
-  </section>
-
-  <section class="section-shell pt-4">
-    <div class="container-shell">
-      <SectionTitle
-        eyebrow="Pourquoi choisir Cozy Space"
-        title="Une presentation sobre, rassurante et facilement evolutive"
-        copy="La structure reste legere, mobile first et centrale les contenus remplaÃ§ables pour permettre un rebranding ou une mise a jour rapide plus tard."
-      />
-      <div class="mt-10">
-        <TrustBadges />
-      </div>
-    </div>
-  </section>
-
-  <CTASection />
 </MainLayout>

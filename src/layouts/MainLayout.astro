@@ -37,7 +37,7 @@ const fullTitle = `${title} | ${siteData.brandName}`;
   </head>
   <body class="min-h-screen">
     <LanguageSwitcher locale={locale} />
-    <Header locale={locale} />
+    <Header locale={locale} pageTitle={title} />
     <main>
       <slot />
     </main>

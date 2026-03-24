@@ -2,9 +2,12 @@ import { products as localProducts } from '../data/products';
 import type { Product } from './types';
 
 const PRODUCTS_FEED_URL = import.meta.env.PRODUCTS_FEED_URL || import.meta.env.PUBLIC_PRODUCTS_FEED_URL || '';
+const IS_DEV = import.meta.env.DEV;
+const PRODUCT_CACHE_TTL_MS = IS_DEV ? 0 : 60_000;
 
 const defaultProduct: Product = localProducts[0];
 let cachedProductsPromise: Promise<Product[]> | null = null;
+let cachedProductsAt = 0;
 const imageCache = new Map<string, Promise<string>>();
 
 const splitList = (value: unknown) =>
@@ -17,6 +20,12 @@ const splitColorList = (value: unknown) =>
   String(value || '')
     .split(/\s*[\/|,]\s*/)
     .map((item) => item.trim())
+    .filter(Boolean);
+
+const splitCategoryList = (value: unknown) =>
+  String(value || '')
+    .split(/\s*[\/|,]\s*/)
+    .map((item) => item.trim().toLowerCase())
     .filter(Boolean);
 
 const normalizeBoolean = (value: unknown, fallback = false) => {
@@ -84,6 +93,8 @@ const normalizeProduct = (row: Record<string, unknown>, index: number): Product 
     shortDescriptionAr: String(row.shortDescriptionAr || ''),
     features: splitList(row.features).length ? splitList(row.features) : defaultProduct.features,
     featuresAr: splitList(row.featuresAr),
+    reasons: splitList(row.reasons),
+    reasonsAr: splitList(row.reasonsAr),
     availability: String(
       row.availability || (typeof quantity === 'number' ? (quantity > 0 ? 'Disponible' : 'Rupture de stock') : defaultProduct.availability)
     ),
@@ -97,6 +108,10 @@ const normalizeProduct = (row: Record<string, unknown>, index: number): Product 
 
 const fetchImageAsDataUrl = async (url: string) => {
   if (!/^https?:\/\//i.test(url)) return url;
+
+  if (IS_DEV) {
+    imageCache.delete(url);
+  }
 
   if (!imageCache.has(url)) {
     imageCache.set(
@@ -149,7 +164,13 @@ const fetchSheetProducts = async () => {
   if (!PRODUCTS_FEED_URL) return null;
 
   try {
-    const response = await fetch(PRODUCTS_FEED_URL, {
+    const requestUrl = new URL(PRODUCTS_FEED_URL);
+
+    if (IS_DEV) {
+      requestUrl.searchParams.set('_ts', String(Date.now()));
+    }
+
+    const response = await fetch(requestUrl.toString(), {
       headers: { Accept: 'application/json' },
       cache: 'no-store'
     });
@@ -168,11 +189,20 @@ const fetchSheetProducts = async () => {
 };
 
 export const getProducts = async () => {
-  if (!cachedProductsPromise) {
+  const now = Date.now();
+  const isCacheExpired = !cachedProductsAt || now - cachedProductsAt > PRODUCT_CACHE_TTL_MS;
+
+  if (IS_DEV) {
+    cachedProductsPromise = null;
+    cachedProductsAt = 0;
+  }
+
+  if (!cachedProductsPromise || isCacheExpired) {
     cachedProductsPromise = (async () => {
       const sheetProducts = await fetchSheetProducts();
       return sheetProducts || localProducts;
     })();
+    cachedProductsAt = now;
   }
 
   return cachedProductsPromise;
@@ -180,16 +210,104 @@ export const getProducts = async () => {
 
 export const getFeaturedProducts = (products: Product[]) =>
   products.filter(
-    (product, index, list) =>
-      product.featured &&
-      index === list.findIndex((item) => (item.variantGroup || item.slug) === (product.variantGroup || product.slug))
+    (product, index, list) => product.featured && index === list.findIndex((item) => item.id === product.id)
   );
 
 export const getCatalogProducts = (products: Product[]) =>
-  products.filter(
-    (product, index, list) =>
-      index === list.findIndex((item) => (item.variantGroup || item.slug) === (product.variantGroup || product.slug))
-  );
+  products.filter((product, index, list) => index === list.findIndex((item) => item.id === product.id));
+
+const hasTag = (product: Product, patterns: string[]) => {
+  const haystack = [product.slug, product.category, product.collection, ...product.tags].join(' ').toLowerCase();
+  return patterns.some((pattern) => haystack.includes(pattern));
+};
+
+export const getProductCategoryKeys = (product: Product) => {
+  const categories = new Set<string>();
+  const categoryValues = splitCategoryList(product.category);
+
+  categoryValues.forEach((value) => {
+    if (value.includes('voiture') || value.includes('car')) categories.add('voiture');
+    if (value.includes('beaute') || value.includes('beauty') || value.includes('maquillage')) categories.add('beaute');
+    if (value.includes('organisation') || value.includes('organisateur') || value.includes('rangement')) categories.add('organisation');
+    if (value.includes('maison') || value.includes('home') || value.includes('accessoires du quotidien')) categories.add('maison');
+  });
+
+  if (hasTag(product, ['voiture', 'car'])) categories.add('voiture');
+  if (hasTag(product, ['beaute', 'beauty', 'makeup', 'maquillage'])) categories.add('beaute');
+  if (hasTag(product, ['organisation', 'organisateur', 'rangement'])) categories.add('organisation');
+  if (hasTag(product, ['maison', 'home'])) categories.add('maison');
+  if (hasTag(product, ['miroir-lumineux'])) categories.add('voiture');
+
+  return categories.size ? Array.from(categories) : ['maison'];
+};
+
+export const getProductCategoryKey = (product: Product) => getProductCategoryKeys(product)[0];
+
+export const getProductCategoryLabel = (product: Product, locale: 'fr' | 'ar' = 'fr') => {
+  const labels = {
+    fr: {
+      maison: 'Maison',
+      voiture: 'Voiture',
+      organisation: 'Organisation',
+      beaute: 'Beaute'
+    },
+    ar: {
+      maison: 'المنزل',
+      voiture: 'السيارة',
+      organisation: 'التنظيم',
+      beaute: 'الجمال'
+    }
+  };
+
+  return getProductCategoryKeys(product)
+    .map((key) => labels[locale][key])
+    .join(' / ');
+};
+
+export const isPromotionProduct = (product: Product) =>
+  Boolean(product.oldPrice) || hasTag(product, ['solde', 'promo', 'promotion', 'reduction']);
+
+export const isNewProduct = (product: Product) => hasTag(product, ['nouveau', 'nouveaute', 'new']);
+
+export const isPopularProduct = (product: Product) =>
+  product.featured || hasTag(product, ['tendance', 'best seller', 'bestseller', 'populaire']);
+
+export const getProductBadge = (product: Product, locale: 'fr' | 'ar' = 'fr') => {
+  if (isPromotionProduct(product)) {
+    return locale === 'ar'
+      ? { label: 'تخفيض', tone: 'sale' }
+      : { label: 'Solde', tone: 'sale' };
+  }
+
+  if (hasTag(product, ['best seller', 'bestseller'])) {
+    return locale === 'ar'
+      ? { label: '⭐ الأكثر مبيعاً', tone: 'best' }
+      : { label: '⭐ Best seller', tone: 'best' };
+  }
+
+  if (isPopularProduct(product)) {
+    return locale === 'ar'
+      ? { label: '🔥 رائج', tone: 'trend' }
+      : { label: '🔥 Tendance', tone: 'trend' };
+  }
+
+  return null;
+};
+
+const uniqueProducts = (products: Product[]) =>
+  products.filter((product, index, list) => index === list.findIndex((item) => item.id === product.id));
+
+export const getPromotionProducts = (products: Product[]) => uniqueProducts(products.filter(isPromotionProduct)).slice(0, 4);
+
+export const getNewArrivalProducts = (products: Product[]) => {
+  const matches = uniqueProducts(products.filter(isNewProduct));
+  return (matches.length ? matches : uniqueProducts(products)).slice(0, 4);
+};
+
+export const getPopularProducts = (products: Product[]) => {
+  const matches = uniqueProducts(products.filter(isPopularProduct));
+  return (matches.length ? matches : uniqueProducts(products)).slice(0, 4);
+};
 
 export const getAvailableColors = (products: Product[], productSlug: string, variantGroup?: string, locale: 'fr' | 'ar' = 'fr') =>
   Array.from(
@@ -210,12 +328,8 @@ export const getSimilarProducts = (products: Product[], product: Product) =>
   products
     .filter(
       (item) =>
-        item.category === product.category &&
-        item.slug !== product.slug &&
-        item.variantGroup !== product.variantGroup
+        item.id !== product.id &&
+        getProductCategoryKeys(item).some((category) => getProductCategoryKeys(product).includes(category))
     )
-    .filter(
-      (item, index, list) =>
-        index === list.findIndex((entry) => (entry.variantGroup || entry.slug) === (item.variantGroup || item.slug))
-    )
+    .filter((item, index, list) => index === list.findIndex((entry) => entry.id === item.id))
     .slice(0, 4);

@@ -31,15 +31,16 @@ export const uiText = {
       contactBrand: 'Contacter la marque',
       visitShop: 'Visiter la boutique',
       arabicVersion: 'Version arabe',
-      frenchVersion: 'Version francaise'
+      frenchVersion: 'Version francaise',
+      search: 'Recherche'
     },
     catalogue: {
       eyebrow: 'Catalogue',
-      title: 'Miroirs lumineux',
-      copy:
-        'Collection de miroirs lumineux avec eclairage LED integre. Design moderne et elegant pour votre salle de bain ou dressing.',
-      all: 'Tout voir',
-      detail: 'Voir le detail',
+      title: 'Catalogue',
+      copy: 'Decouvrez nos produits selectionnes pour simplifier votre quotidien',
+      all: 'Tous',
+      detail: 'Voir le produit',
+      buy: 'Acheter',
       colors: 'Couleurs'
     },
     product: {
@@ -50,7 +51,7 @@ export const uiText = {
     },
     order: {
       title: 'Commander',
-      color: 'Couleur',
+      color: 'Choix de couleur',
       colorPlaceholder: 'Choisissez une couleur',
       firstName: 'Prenom',
       lastName: 'Nom',
@@ -67,7 +68,7 @@ export const uiText = {
   ar: {
     nav: {
       home: 'الرئيسية',
-      catalogue: 'الكتالوج',
+      catalogue: 'المنتجات',
       about: 'من نحن',
       contact: 'اتصل بنا'
     },
@@ -75,15 +76,16 @@ export const uiText = {
       contactBrand: 'تواصل مع العلامة',
       visitShop: 'زيارة المتجر',
       arabicVersion: 'النسخة العربية',
-      frenchVersion: 'النسخة الفرنسية'
+      frenchVersion: 'النسخة الفرنسية',
+      search: 'بحث'
     },
     catalogue: {
-      eyebrow: 'الكتالوج',
-      title: 'مرايا مضيئة',
-      copy:
-        'مجموعة من المرايا المضيئة بإضاءة LED مدمجة، بتصميم عصري وأنيق للحمام أو غرفة التزيين.',
-      all: 'عرض الكل',
-      detail: 'عرض التفاصيل',
+      eyebrow: 'المنتجات',
+      title: 'المنتجات',
+      copy: 'اكتشف منتجاتنا المختارة بعناية لتسهيل حياتك اليومية',
+      all: 'الكل',
+      detail: 'عرض المنتج',
+      buy: 'شراء',
       colors: 'الألوان'
     },
     product: {
@@ -93,8 +95,8 @@ export const uiText = {
       similar: 'منتجات مشابهة'
     },
     order: {
-      title: 'اطلب',
-      color: 'اللون',
+      title: 'اطلب الآن',
+      color: 'اختيار اللون',
       colorPlaceholder: 'اختر اللون',
       firstName: 'الاسم',
       lastName: 'اللقب',

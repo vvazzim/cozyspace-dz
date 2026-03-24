@@ -4,6 +4,24 @@ import ProductCard from '../../components/ProductCard.astro';
 import OrderForm from '../../components/OrderForm.astro';
 import { getProductColors, getProducts, getSimilarProducts } from '../../lib/product-source';
 
+const productPageCopy: Record<
+  string,
+  {
+    title: string;
+    subtitle: string;
+    kicker: string;
+    description: string;
+  }
+> = {
+  'miroir-lumineux-noir': {
+    title: 'Miroir LED pour voiture',
+    subtitle: 'Maquillage parfait partout',
+    kicker: 'Dites adieu au manque de lumière dans votre voiture.',
+    description:
+      'Ce miroir LED vous offre un éclairage parfait, où que vous soyez. Parfait pour les déplacements, le travail ou les sorties.'
+  }
+};
+
 export async function getStaticPaths() {
   const products = await getProducts();
 
@@ -18,11 +36,20 @@ const displayName = product.baseName || product.name;
 const similarProducts = getSimilarProducts(products, product);
 const colors = getProductColors(product, 'fr');
 const galleryId = `product-gallery-${product.slug}`;
+const pageCopy = productPageCopy[product.slug];
+const headingTitle = pageCopy?.title || displayName;
+const headingSubtitle = pageCopy?.subtitle || '';
+const kicker = pageCopy?.kicker || product.shortDescription;
+const longDescription = pageCopy?.description || product.shortDescription;
+const highlightsTitle = 'Points forts';
+const highlights = product.features;
+const reasonsTitle = 'Pourquoi choisir ce produit ?';
+const reasons = product.reasons || [];
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
-  name: displayName,
-  description: product.shortDescription,
+  name: headingTitle,
+  description: longDescription,
   image: product.images,
   category: product.category,
   offers: {
@@ -34,14 +61,16 @@ const schema = {
 };
 ---
 
-<MainLayout title={product.name} description={product.shortDescription} image={product.images[0]}>
+<MainLayout title={headingTitle} description={longDescription} image={product.images[0]}>
   <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
 
   <section class="section-shell">
     <div class="container-shell">
       <div class="mb-8">
         <div class="text-sm font-semibold uppercase tracking-brand text-brand-muted">{product.collection}</div>
-        <h1 class="mt-3 text-3xl font-semibold text-brand-charcoal sm:text-5xl">{displayName}</h1>
+        <h1 class="mt-3 text-3xl font-semibold text-brand-charcoal sm:text-5xl">{headingTitle}</h1>
+        {headingSubtitle && <p class="mt-3 text-lg font-medium text-brand-charcoal/80 sm:text-2xl">{headingSubtitle}</p>}
+        <p class="mt-4 max-w-2xl text-base leading-7 text-brand-muted sm:text-lg">{kicker}</p>
       </div>
 
       <div class="grid gap-10 lg:grid-cols-[1fr_0.95fr] lg:items-start">
@@ -71,9 +100,9 @@ const schema = {
                   type="button"
                   class="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-brand-line bg-white/90 px-3 py-2 text-sm font-semibold text-brand-charcoal shadow-soft hover:border-brand-gold"
                   data-gallery-prev={galleryId}
-                  aria-label="Image precedente"
+                  aria-label="Image précédente"
                 >
-                  ←
+                  &lt;
                 </button>
                 <button
                   type="button"
@@ -81,7 +110,7 @@ const schema = {
                   data-gallery-next={galleryId}
                   aria-label="Image suivante"
                 >
-                  →
+                  &gt;
                 </button>
               </>
             )}
@@ -104,7 +133,7 @@ const schema = {
         </div>
 
         <div>
-          <p class="mt-4 text-sm leading-7 text-brand-muted sm:text-base">{product.shortDescription}</p>
+          <p class="mt-4 text-sm leading-7 text-brand-muted sm:text-base">{longDescription}</p>
 
           <div class="mt-6 flex items-end gap-4">
             <div class="text-2xl font-semibold text-brand-charcoal">{product.price}</div>
@@ -112,9 +141,9 @@ const schema = {
           </div>
 
           <div class="mt-6 rounded-3xl border border-brand-line bg-white p-5">
-            <div class="text-sm font-semibold text-brand-charcoal">Points forts</div>
+            <div class="text-sm font-semibold text-brand-charcoal">{highlightsTitle}</div>
             <ul class="mt-4 grid gap-3 text-sm text-brand-muted">
-              {product.features.map((feature) => (
+              {highlights.map((feature) => (
                 <li class="flex items-start gap-3">
                   <span class="mt-1 h-2.5 w-2.5 rounded-full bg-brand-gold"></span>
                   <span>{feature}</span>
@@ -123,10 +152,19 @@ const schema = {
             </ul>
           </div>
 
-          <div class="mt-6 rounded-3xl border border-brand-line bg-brand-bg p-5">
-            <div class="text-sm font-medium text-brand-charcoal">Disponibilite</div>
-            <p class="mt-2 text-sm leading-7 text-brand-muted">{product.availability}</p>
-          </div>
+          {reasons.length > 0 && (
+            <div class="mt-6 rounded-3xl border border-brand-line bg-white p-5">
+              <div class="text-sm font-semibold text-brand-charcoal">{reasonsTitle}</div>
+              <ul class="mt-4 grid gap-3 text-sm text-brand-muted">
+                {reasons.map((reason) => (
+                  <li class="flex items-start gap-3">
+                    <span class="mt-1 h-2.5 w-2.5 rounded-full bg-brand-charcoal"></span>
+                    <span>{reason}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div class="mt-8 flex flex-wrap gap-3">
             <a href="/catalogue" class="btn-secondary">Visiter la boutique</a>

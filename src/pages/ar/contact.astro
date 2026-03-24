@@ -1,39 +1,41 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro';
-import SectionTitle from '../../components/SectionTitle.astro';
 import FAQ from '../../components/FAQ.astro';
-import { getFaqItems } from '../../lib/i18n';
-
-const faqItems = getFaqItems('ar');
+import SocialLinks from '../../components/SocialLinks.astro';
+import { arabicFaqItems } from '../../data/faq';
 ---
 
-<MainLayout locale="ar" title="اتصل بنا" description="صفحة تواصل بالعربية مع أسئلة شائعة ومعلومات مختصرة.">
+<MainLayout locale="ar" title="اتصل بنا" description="فريقنا متواجد للإجابة على جميع استفساراتكم بخصوص منتجاتنا أو طلباتكم أو التوصيل.">
   <section class="section-shell">
     <div class="container-shell">
       <div class="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
         <div class="card-shell p-8 sm:p-10">
-          <SectionTitle
-            eyebrow="اتصل بنا"
-            title="نحن هنا لمساعدتك قبل الطلب"
-            copy="إذا كنت بحاجة إلى معلومات إضافية حول المنتج أو التوفر أو طريقة الطلب، يمكنك تصفح الكتالوج وترك بياناتك عبر نموذج الطلب."
-          />
+          <div class="eyebrow">اتصل بنا</div>
+          <h1 class="mt-4 text-4xl font-semibold text-brand-charcoal">نحن هنا لمساعدتكم</h1>
+          <div class="mt-6 space-y-4 text-sm leading-8 text-brand-muted sm:text-base">
+            <p>فريقنا متواجد للإجابة على جميع استفساراتكم بخصوص منتجاتنا أو طلباتكم أو التوصيل.</p>
+            <p>لا تترددوا في التواصل معنا، يسعدنا مساعدتكم في أي وقت.</p>
+          </div>
 
-          <div class="mt-8 rounded-3xl border border-brand-line bg-brand-bg p-5">
-            <p class="text-sm leading-7 text-brand-muted">
-              يمكنك البدء من الكتالوج ثم فتح صفحة المنتج المناسبة وإرسال طلبك مباشرة.
-            </p>
-            <a href="/ar/catalogue" class="btn-primary mt-4">زيارة المتجر</a>
+          <div class="mt-8 rounded-[1.75rem] border border-brand-line bg-brand-bg p-5">
+            <p class="text-sm font-semibold text-brand-charcoal">أوقات الرد</p>
+            <p class="mt-2 text-sm leading-7 text-brand-muted">كل يوم من 8:00 صباحاً إلى 21:00 مساءً</p>
+            <p class="mt-4 text-sm font-semibold text-brand-charcoal">طرق التواصل</p>
+            <a href="mailto:cozyspace.dz@gmail.com" class="mt-2 inline-block text-sm font-medium text-brand-charcoal underline underline-offset-4">
+              cozyspace.dz@gmail.com
+            </a>
+          </div>
+
+          <div class="mt-8">
+            <SocialLinks locale="ar" />
           </div>
         </div>
 
         <div>
-          <SectionTitle
-            eyebrow="الأسئلة الشائعة"
-            title="إجابات سريعة"
-            copy="محتوى مختصر وواضح يساعدك على فهم طريقة الطلب والمعلومات الأساسية قبل الشراء."
-          />
+          <div class="eyebrow">الأسئلة الشائعة</div>
+          <h2 class="mt-4 text-3xl font-semibold text-brand-charcoal">إجابات سريعة</h2>
           <div class="mt-8">
-            <FAQ items={faqItems} />
+            <FAQ items={arabicFaqItems} />
           </div>
         </div>
       </div>
