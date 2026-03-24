@@ -1,4 +1,61 @@
+const imageErrorResponse = (statusCode, message) => ({
+  statusCode,
+  headers: {
+    'content-type': 'application/json',
+    'cache-control': 'no-store'
+  },
+  body: JSON.stringify({ success: false, message })
+});
+
+const handleDriveImageProxy = async (event) => {
+  const fileId = String(event.queryStringParameters?.imageId || '').trim();
+
+  if (!fileId) {
+    return imageErrorResponse(400, 'Missing Google Drive file id');
+  }
+
+  const urls = [
+    `https://drive.google.com/uc?export=view&id=${encodeURIComponent(fileId)}`,
+    `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w1600`
+  ];
+
+  for (const url of urls) {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8'
+        }
+      });
+
+      if (!response.ok) continue;
+
+      const contentType = response.headers.get('content-type') || 'image/jpeg';
+      if (!contentType.startsWith('image/')) continue;
+
+      const buffer = Buffer.from(await response.arrayBuffer());
+
+      return {
+        statusCode: 200,
+        headers: {
+          'content-type': contentType,
+          'cache-control': 'public, max-age=3600, s-maxage=3600'
+        },
+        body: buffer.toString('base64'),
+        isBase64Encoded: true
+      };
+    } catch {
+      // Try the next candidate URL.
+    }
+  }
+
+  return imageErrorResponse(502, 'Unable to fetch Google Drive image');
+};
+
 export const handler = async (event) => {
+  if (event.httpMethod === 'GET' && event.queryStringParameters?.imageId) {
+    return handleDriveImageProxy(event);
+  }
+
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,

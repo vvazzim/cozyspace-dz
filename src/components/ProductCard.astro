@@ -29,7 +29,13 @@ const imageAlt = locale === 'ar' ? product.nameAr || product.name : product.name
 <article class="group overflow-hidden rounded-3xl border border-brand-line bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-premium">
   <a href={`${basePath}/produit/${product.slug}`} class="block">
     <div class="overflow-hidden bg-brand-pearl">
-      <img src={product.images[0]} alt={imageAlt} class="aspect-[4/5] w-full object-cover transition duration-300 group-hover:scale-[1.02]" loading="lazy" />
+      <img
+        src={product.images[0]}
+        alt={imageAlt}
+        class="aspect-[4/5] w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+      />
     </div>
 
     <div class="p-5">

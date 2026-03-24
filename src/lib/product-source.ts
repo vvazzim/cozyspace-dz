@@ -5,6 +5,7 @@ const PRODUCTS_FEED_URL = import.meta.env.PRODUCTS_FEED_URL || import.meta.env.P
 
 const defaultProduct: Product = localProducts[0];
 let cachedProductsPromise: Promise<Product[]> | null = null;
+const imageCache = new Map<string, Promise<string>>();
 
 const splitList = (value: unknown) =>
   String(value || '')
@@ -94,6 +95,45 @@ const normalizeProduct = (row: Record<string, unknown>, index: number): Product 
   };
 };
 
+const fetchImageAsDataUrl = async (url: string) => {
+  if (!/^https?:\/\//i.test(url)) return url;
+
+  if (!imageCache.has(url)) {
+    imageCache.set(
+      url,
+      (async () => {
+        try {
+          const response = await fetch(url, {
+            headers: {
+              Accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8'
+            }
+          });
+
+          if (!response.ok) return url;
+
+          const contentType = response.headers.get('content-type') || '';
+          if (!contentType.startsWith('image/')) return url;
+
+          const buffer = Buffer.from(await response.arrayBuffer());
+          return `data:${contentType};base64,${buffer.toString('base64')}`;
+        } catch {
+          return url;
+        }
+      })()
+    );
+  }
+
+  return imageCache.get(url) as Promise<string>;
+};
+
+const inlineRemoteProductImages = async (products: Product[]) =>
+  Promise.all(
+    products.map(async (product) => ({
+      ...product,
+      images: await Promise.all(product.images.map((image) => fetchImageAsDataUrl(image)))
+    }))
+  );
+
 const extractRows = (payload: unknown): Record<string, unknown>[] => {
   if (Array.isArray(payload)) return payload as Record<string, unknown>[];
   if (payload && typeof payload === 'object') {
@@ -119,8 +159,9 @@ const fetchSheetProducts = async () => {
     const payload = await response.json();
     const rows = extractRows(payload);
     const products = rows.map(normalizeProduct).filter((product) => product.published !== false);
+    const hydratedProducts = await inlineRemoteProductImages(products);
 
-    return products.length ? products : null;
+    return hydratedProducts.length ? hydratedProducts : null;
   } catch {
     return null;
   }

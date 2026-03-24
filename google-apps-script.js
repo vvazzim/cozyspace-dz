@@ -36,7 +36,7 @@ function handleOrderRequest(e) {
 
     Logger.log('Order data received: %s', JSON.stringify(data));
 
-    var spreadsheetId = 'YOUR_SPREADSHEET_ID';
+    var spreadsheetId = getRequiredScriptProperty_('SPREADSHEET_ID');
     var sheet = SpreadsheetApp.openById(spreadsheetId).getSheets()[0];
 
     var rowData = [
@@ -65,6 +65,16 @@ function handleOrderRequest(e) {
       .createTextOutput(JSON.stringify({ success: false, message: error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+function getRequiredScriptProperty_(key) {
+  var value = PropertiesService.getScriptProperties().getProperty(key);
+
+  if (!value) {
+    throw new Error('Missing script property: ' + key);
+  }
+
+  return value;
 }
 
 function parseFormEncodedPayload_(payload) {

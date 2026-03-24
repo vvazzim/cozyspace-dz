@@ -10,7 +10,7 @@
 
 function doGet() {
   try {
-    var spreadsheetId = 'YOUR_SPREADSHEET_ID';
+    var spreadsheetId = getRequiredScriptProperty_('SPREADSHEET_ID');
     var sheetName = 'Produits';
     var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
     var sheet = spreadsheet.getSheetByName(sheetName);
@@ -52,6 +52,16 @@ function doGet() {
   } catch (error) {
     return jsonOutput_({ success: false, message: error.toString() });
   }
+}
+
+function getRequiredScriptProperty_(key) {
+  var value = PropertiesService.getScriptProperties().getProperty(key);
+
+  if (!value) {
+    throw new Error('Missing script property: ' + key);
+  }
+
+  return value;
 }
 
 function enrichProductImages_(product) {

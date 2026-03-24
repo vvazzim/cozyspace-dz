@@ -13,7 +13,6 @@ interface Props {
 const { productName, productSlug, productPrice = '', colors = [], embedded = false, locale = 'fr' } = Astro.props;
 const labels = uiText[locale].order;
 const submitUrl = import.meta.env.PUBLIC_GOOGLE_SCRIPT_URL || '';
-const iframeTarget = `order-submit-frame-${productSlug}`;
 const countryCodes = [
   { label: '+213  Algerie', value: '+213' },
   { label: '+33  France', value: '+33' },
@@ -43,9 +42,7 @@ const countryCodes = [
         )}
       </div>
 
-      <iframe name={iframeTarget} class="hidden" aria-hidden="true"></iframe>
-
-      <form id="order-form" action={submitUrl} method="GET" target={iframeTarget} class="mt-6 space-y-4">
+      <form id="order-form" action={submitUrl} method="POST" class="mt-6 space-y-4">
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
             <label for="firstName" class="block text-sm font-medium text-brand-charcoal">{labels.firstName}</label>
@@ -291,12 +288,13 @@ const countryCodes = [
     }
   });
 
-  form?.addEventListener('submit', (e) => {
+  form?.addEventListener('submit', async (e) => {
     if (!successMessage || !errorMessage || !submitButton || !form) return;
+
+    e.preventDefault();
 
     const isPhoneValid = buildPhoneNumber();
     if (!isPhoneValid || !form.reportValidity()) {
-      e.preventDefault();
       errorMessage.classList.remove('hidden');
       successMessage.classList.add('hidden');
       return;
@@ -304,13 +302,53 @@ const countryCodes = [
 
     submitButton.setAttribute('disabled', 'disabled');
     submitButton.textContent = 'Envoi...';
-    successMessage.classList.remove('hidden');
     errorMessage.classList.add('hidden');
+    successMessage.classList.add('hidden');
 
-    window.setTimeout(() => {
+    try {
+      const formData = new FormData(form);
+      const payload = new URLSearchParams();
+
+      for (const [key, value] of formData.entries()) {
+        payload.append(key, String(value));
+      }
+
+      const response = await fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: payload.toString()
+      });
+
+      const responseText = await response.text();
+      let responseJson = null;
+
+      try {
+        responseJson = JSON.parse(responseText || '{}');
+      } catch {
+        responseJson = null;
+      }
+
+      if (!response.ok || (responseJson && responseJson.success === false)) {
+        throw new Error(responseJson?.message || "Echec de l'envoi de la commande.");
+      }
+
+      successMessage.classList.remove('hidden');
+      errorMessage.classList.add('hidden');
+
+      window.setTimeout(() => {
+        submitButton.removeAttribute('disabled');
+        submitButton.textContent = defaultSubmitLabel;
+        closeModal();
+      }, 2500);
+    } catch (error) {
       submitButton.removeAttribute('disabled');
       submitButton.textContent = defaultSubmitLabel;
-      closeModal();
-    }, 2500);
+      errorMessage.textContent =
+        error instanceof Error && error.message ? error.message : 'Une erreur est survenue.';
+      errorMessage.classList.remove('hidden');
+      successMessage.classList.add('hidden');
+    }
   });
 </script>
