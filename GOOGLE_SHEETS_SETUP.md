@@ -1,45 +1,97 @@
-# Configuration Google Sheets pour les commandes
+# Configuration Google Sheets
 
-## Étapes pour configurer l'intégration Google Sheets :
+## Principe
 
-### 1. Créer un Google Sheet
-- Allez sur [sheets.google.com](https://sheets.google.com)
-- Créez un nouveau spreadsheet
-- Ajoutez ces en-têtes dans la première ligne :
-  - Timestamp
-  - Prénom
-  - Nom
-  - Téléphone
-  - Produit
-  - Slug Produit
-  - Adresse
+Le projet utilise maintenant un seul script Apps Script :
 
-### 2. Créer le Google Apps Script
-- Dans votre Google Sheet, allez dans **Extensions > Apps Script**
-- Supprimez le code par défaut et collez le contenu du fichier `google-apps-script.js`
-- Remplacez `YOUR_SPREADSHEET_ID` par l'ID de votre spreadsheet (visible dans l'URL)
+- `google-apps-script.js`
 
-### 3. Déployer le script
-- Cliquez sur **Déployer > Nouvelle déploiement**
-- Sélectionnez le type **Application Web**
-- Description : "API Commandes Miroirs"
-- Execute as : **Me** (votre email)
-- Who has access : **Anyone** (ou "Anyone with Google account" pour plus de sécurité)
-- Cliquez sur **Déployer**
+Ce script unique gere :
 
-### 4. Récupérer l'URL du script
-- Copiez l'URL fournie après le déploiement
-- Elle ressemblera à : `https://script.google.com/macros/s/SCRIPT_ID/exec`
+- `GET` : lecture des produits depuis l'onglet `Produits`
+- `POST` : enregistrement des commandes dans l'onglet `Commandes`
+- `onEdit / onChange` : relance Netlify via Build Hook si configure
 
-### 5. Mettre à jour le code du site
-- Dans `src/components/OrderForm.astro`, remplacez `YOUR_SCRIPT_ID` par votre SCRIPT_ID réel
-- Le formulaire enverra maintenant les données vers votre Google Sheet
+## Structure du Google Sheets
 
-## Sécurité
-- Les données sont envoyées en HTTP (pas HTTPS) depuis Google Apps Script
-- Pensez à protéger votre sheet si nécessaire
-- Vous pouvez ajouter une authentification si vous voulez restreindre l'accès
+Utilisez un seul spreadsheet avec deux onglets :
 
-## Test
-- Testez le formulaire sur votre site
-- Vérifiez que les données arrivent bien dans votre Google Sheet
+- `Commandes`
+- `Produits`
+
+## Script Properties a ajouter
+
+Dans Apps Script > `Project Settings` > `Script properties`, ajoutez :
+
+```text
+SPREADSHEET_ID=VOTRE_SPREADSHEET_ID
+NETLIFY_BUILD_HOOK_URL=VOTRE_URL_BUILD_HOOK_NETLIFY
+```
+
+`NETLIFY_BUILD_HOOK_URL` est optionnel.
+
+## Deploiement Apps Script
+
+1. Ouvrez Apps Script depuis votre spreadsheet.
+2. Supprimez le code par defaut.
+3. Collez le contenu de `google-apps-script.js`.
+4. Deploy > New deployment > Web App
+5. Parametres recommandes :
+   - Execute as: `Me`
+   - Who has access: `Anyone`
+
+## URL du script
+
+L'URL `/exec` obtenue sert pour :
+
+- les produits
+- les commandes
+
+Dans le projet, vous pouvez utiliser la meme URL pour :
+
+```env
+GOOGLE_SCRIPT_URL=VOTRE_URL_EXEC
+PUBLIC_GOOGLE_SCRIPT_URL=VOTRE_URL_EXEC
+PRODUCTS_FEED_URL=VOTRE_URL_EXEC
+```
+
+## Onglet Produits
+
+Colonnes conseillees :
+
+```text
+id	slug	name	nameAr	baseName	baseNameAr	color	colorAr	variantGroup	category	collection	collectionAr	price	oldPrice	quantity	image	shortDescription	shortDescriptionAr	features	featuresAr	reasons	reasonsAr	availability	availabilityAr	featured	published	tags
+```
+
+## Onglet Commandes
+
+Colonnes conseillees :
+
+```text
+Timestamp	Prenom	Nom	Telephone	Produit	Couleur	Quantite	Slug Produit	Prix	Adresse
+```
+
+## Notes importantes
+
+- `id` doit etre unique
+- `slug` doit etre unique si vous voulez une fiche produit differente
+- `category` peut contenir plusieurs familles :
+
+```text
+Voiture / Organisation
+```
+
+- `image` peut contenir un lien de dossier Google Drive
+- les images `.png`, `.jpg`, `.jpeg` sont prises automatiquement
+
+## Rafraichissement du site
+
+Si `NETLIFY_BUILD_HOOK_URL` est configure :
+
+- toute modification de l'onglet `Produits`
+- peut declencher automatiquement un rebuild Netlify
+
+Pour une meilleure fiabilite, ajoutez aussi des triggers installables :
+
+- `onEdit` -> From spreadsheet -> On edit
+- `onChange` -> From spreadsheet -> On change

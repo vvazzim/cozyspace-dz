@@ -1,23 +1,99 @@
-// Google Apps Script pour recevoir les commandes et les ajouter au Google Sheet
-// A deployer comme Web App avec les permissions suivantes :
-// - Execute: Anyone
-// - Access: Anyone
+// Google Apps Script unique
+// GET  -> produits depuis l'onglet "Produits"
+// POST -> commandes dans l'onglet "Commandes"
+// Trigger edit/change -> rebuild Netlify optionnel
+//
+// Deploiement conseille :
+// - Execute as: Me
+// - Who has access: Anyone
+//
+// Script Properties conseillees :
+// - SPREADSHEET_ID
+// - NETLIFY_BUILD_HOOK_URL (optionnel)
 
 function doGet(e) {
-  return handleOrderRequest(e);
+  return handleProductsRequest_(e);
 }
 
 function doPost(e) {
-  return handleOrderRequest(e);
+  return handleOrderRequest_(e);
 }
 
-function handleOrderRequest(e) {
+function onEdit(e) {
+  triggerNetlifyBuildIfProductsSheet_(e);
+}
+
+function onChange(e) {
+  triggerNetlifyBuild_();
+}
+
+function handleProductsRequest_(e) {
   try {
-    Logger.log('e: %s', JSON.stringify(e || {}));
-    Logger.log('e.parameter: %s', JSON.stringify((e && e.parameter) || {}));
-    Logger.log('e.parameters: %s', JSON.stringify((e && e.parameters) || {}));
-    Logger.log('e.queryString: %s', (e && e.queryString) || '');
-    Logger.log('e.postData: %s', JSON.stringify((e && e.postData) || {}));
+    var spreadsheetId = getRequiredScriptProperty_('SPREADSHEET_ID');
+    var sheetName = 'Produits';
+    var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+    var sheet = spreadsheet.getSheetByName(sheetName);
+
+    if (!sheet) {
+      throw new Error('Onglet introuvable: ' + sheetName);
+    }
+
+    var values = sheet.getDataRange().getValues();
+    if (!values.length) {
+      return jsonOutput_({ success: true, products: [] });
+    }
+
+    var headers = values[0].map(function (header) {
+      return String(header || '').trim();
+    });
+
+    var seenIds = {};
+    var products = values
+      .slice(1)
+      .filter(function (row) {
+        return row.some(function (cell) {
+          return String(cell || '').trim() !== '';
+        });
+      })
+      .map(function (row) {
+        var product = headers.reduce(function (acc, header, index) {
+          acc[header] = row[index];
+          return acc;
+        }, {});
+
+        return enrichProductImages_(product);
+      })
+      .filter(function (product) {
+        var published = String(product.published || 'TRUE').toLowerCase();
+        if (published === 'false' || published === '0' || published === 'no') return false;
+
+        var key = String(product.id || product.slug || '').trim();
+        if (!key) return true;
+        if (seenIds[key]) return false;
+
+        seenIds[key] = true;
+        return true;
+      });
+
+    return jsonOutput_({ success: true, products: products });
+  } catch (error) {
+    return jsonOutput_({
+      success: false,
+      message: String(error)
+    });
+  }
+}
+
+function handleOrderRequest_(e) {
+  try {
+    var spreadsheetId = getRequiredScriptProperty_('SPREADSHEET_ID');
+    var sheetName = 'Commandes';
+    var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+    var sheet = spreadsheet.getSheetByName(sheetName);
+
+    if (!sheet) {
+      throw new Error('Onglet introuvable: ' + sheetName);
+    }
 
     var data = {};
 
@@ -25,7 +101,6 @@ function handleOrderRequest(e) {
       try {
         data = JSON.parse(e.postData.contents);
       } catch (err) {
-        Logger.log('Body non JSON, tentative de parsing form-urlencoded : %s', err);
         data = parseFormEncodedPayload_(e.postData.contents);
       }
     }
@@ -33,11 +108,6 @@ function handleOrderRequest(e) {
     if (e && e.parameter && Object.keys(e.parameter).length) {
       data = Object.assign({}, data, e.parameter);
     }
-
-    Logger.log('Order data received: %s', JSON.stringify(data));
-
-    var spreadsheetId = getRequiredScriptProperty_('SPREADSHEET_ID');
-    var sheet = SpreadsheetApp.openById(spreadsheetId).getSheets()[0];
 
     var rowData = [
       new Date(),
@@ -53,17 +123,16 @@ function handleOrderRequest(e) {
     ];
 
     sheet.appendRow(rowData);
-    Logger.log('Commande ajoutee au Sheet. ID sheet: %s', spreadsheetId);
 
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: true, message: 'Commande enregistree' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonOutput_({
+      success: true,
+      message: 'Commande enregistree'
+    });
   } catch (error) {
-    Logger.log('Erreur handleOrderRequest: %s', error.toString());
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: false, message: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonOutput_({
+      success: false,
+      message: String(error)
+    });
   }
 }
 
@@ -75,6 +144,100 @@ function getRequiredScriptProperty_(key) {
   }
 
   return value;
+}
+
+function triggerNetlifyBuildIfProductsSheet_(e) {
+  try {
+    if (!e || !e.range) return;
+
+    var sheet = e.range.getSheet();
+    if (!sheet || sheet.getName() !== 'Produits') return;
+
+    triggerNetlifyBuild_();
+  } catch (error) {
+    Logger.log('Netlify build hook skipped: ' + error);
+  }
+}
+
+function triggerNetlifyBuild_() {
+  try {
+    var hookUrl = PropertiesService.getScriptProperties().getProperty('NETLIFY_BUILD_HOOK_URL');
+    if (!hookUrl) return;
+
+    UrlFetchApp.fetch(hookUrl, {
+      method: 'post',
+      muteHttpExceptions: true
+    });
+  } catch (error) {
+    Logger.log('Netlify build hook failed: ' + error);
+  }
+}
+
+function enrichProductImages_(product) {
+  var source = String(product.image || product.images || '').trim();
+  if (!source) {
+    return product;
+  }
+
+  var folderId = extractDriveFolderId_(source);
+  if (!folderId) {
+    return product;
+  }
+
+  var images = getPublicImagesFromFolder_(folderId);
+  if (!images.length) return product;
+
+  product.images = images.map(function (image) {
+    return image.url;
+  });
+  product.image = images[0].url;
+  return product;
+}
+
+function extractDriveFolderId_(input) {
+  var value = String(input || '').trim();
+  if (!value) return '';
+
+  var folderMatch = value.match(/\/folders\/([^/?#]+)/);
+  if (folderMatch) return folderMatch[1];
+
+  var resourceMatch = value.match(/[?&]id=([^&]+)/);
+  if (resourceMatch && value.indexOf('/folders/') !== -1) return resourceMatch[1];
+
+  return '';
+}
+
+function getPublicImagesFromFolder_(folderId) {
+  try {
+    var folder = DriveApp.getFolderById(folderId);
+    var files = folder.getFiles();
+    var images = [];
+
+    while (files.hasNext()) {
+      var file = files.next();
+      var name = String(file.getName() || '').toLowerCase();
+      var mimeType = String(file.getMimeType() || '').toLowerCase();
+      var isImage = mimeType === 'image/png' || mimeType === 'image/jpeg' || /\.(png|jpe?g)$/i.test(name);
+
+      if (isImage) {
+        images.push({
+          name: file.getName(),
+          url: 'https://drive.google.com/thumbnail?id=' + file.getId() + '&sz=w1600'
+        });
+      }
+    }
+
+    images.sort(function (a, b) {
+      return String(a.name).localeCompare(String(b.name), undefined, {
+        numeric: true,
+        sensitivity: 'base'
+      });
+    });
+
+    return images;
+  } catch (error) {
+    return [];
+  }
 }
 
 function parseFormEncodedPayload_(payload) {
@@ -95,24 +258,8 @@ function parseFormEncodedPayload_(payload) {
   }, {});
 }
 
-function testScript() {
-  var testData = {
-    firstName: 'Test',
-    lastName: 'User',
-    phone: '+213550123456',
-    product: 'Miroir Lumineux Noir',
-    quantity: '1',
-    productSlug: 'miroir-lumineux-noir',
-    price: '4 500 DA',
-    address: '123 Test Street'
-  };
-
-  var e = {
-    postData: {
-      contents: JSON.stringify(testData)
-    }
-  };
-
-  var result = doPost(e);
-  Logger.log(result.getContent());
+function jsonOutput_(payload) {
+  return ContentService
+    .createTextOutput(JSON.stringify(payload))
+    .setMimeType(ContentService.MimeType.JSON);
 }

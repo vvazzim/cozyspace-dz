@@ -1,124 +1,51 @@
 # Google Products Setup
 
-## Recommendation
+Cette documentation est maintenant simplifiee :
 
-Use the same Google Sheets file you already use for orders.
-Create a new tab named `Produits` in that same file.
+- utilisez un seul fichier Apps Script : `google-apps-script.js`
+- utilisez un seul spreadsheet
+- utilisez un seul deployment `/exec`
 
-Recommended tabs:
-- `Commandes`
-- `Produits`
+Ce fichier remplace l'ancien mode "script produits separé".
 
-This keeps everything in one place and lets the owner update products without touching the code.
+## A faire
 
-## Products sheet columns
-
-Create these columns in the `Produits` tab, in this order:
-
-- `id`
-- `slug`
-- `name`
-- `nameAr`
-- `baseName`
-- `baseNameAr`
-- `color`
-- `colorAr`
-- `variantGroup`
-- `category`
-- `collection`
-- `collectionAr`
-- `price`
-- `oldPrice`
-- `quantity`
-- `image`
-- `shortDescription`
-- `shortDescriptionAr`
-- `features`
-- `featuresAr`
-- `availability`
-- `availabilityAr`
-- `featured`
-- `published`
-- `tags`
-
-## Images from Google Drive
-
-Store the image in Google Drive and put only the link in the `image` column.
-The site will normalize common Drive links automatically.
-
-Accepted formats include:
-- `https://drive.google.com/file/d/FILE_ID/view?usp=sharing`
-- `https://drive.google.com/open?id=FILE_ID`
-- direct image URLs
-
-## Separate Apps Script for products
-
-Keep products and orders separate.
-
-- orders: `google-apps-script.js`
-- products: `google-products-apps-script.js`
-
-That means:
-- one `/exec` for orders
-- one different `/exec` for products
-
-## Products Apps Script setup
-
-1. Copy `google-products-apps-script.js` into a dedicated Apps Script project.
-2. Replace `YOUR_SPREADSHEET_ID`.
-3. Make sure the `Produits` tab exists in the same spreadsheet.
-4. Deploy as Web App.
-5. Set:
-   - `Execute as: Me`
-   - `Who has access: Anyone`
-
-## Products JSON URL
-
-Your products feed URL will be the `/exec` URL of the products Apps Script deployment.
-Example:
+1. Ouvrir votre projet Apps Script
+2. Coller `google-apps-script.js`
+3. Ajouter les Script Properties :
 
 ```text
-https://script.google.com/macros/s/YOUR_PRODUCTS_DEPLOYMENT_ID/exec
+SPREADSHEET_ID=VOTRE_SPREADSHEET_ID
+NETLIFY_BUILD_HOOK_URL=VOTRE_URL_BUILD_HOOK_NETLIFY
 ```
 
-## Site configuration
+4. Deploy en Web App :
+   - Execute as: `Me`
+   - Who has access: `Anyone`
 
-Add this environment variable locally and on Netlify:
+## URL a utiliser dans le site
+
+Utilisez la meme URL `/exec` pour :
 
 ```env
-PRODUCTS_FEED_URL=https://script.google.com/macros/s/YOUR_PRODUCTS_DEPLOYMENT_ID/exec
+GOOGLE_SCRIPT_URL=VOTRE_URL_EXEC
+PUBLIC_GOOGLE_SCRIPT_URL=VOTRE_URL_EXEC
+PRODUCTS_FEED_URL=VOTRE_URL_EXEC
 ```
 
-The site now does this:
-- try `PRODUCTS_FEED_URL`
-- if it fails, fall back to local products from `src/data/products.ts`
+## Colonnes produits
 
-That means you can set up the sheet progressively without breaking the site.
+```text
+id	slug	name	nameAr	baseName	baseNameAr	color	colorAr	variantGroup	category	collection	collectionAr	price	oldPrice	quantity	image	shortDescription	shortDescriptionAr	features	featuresAr	reasons	reasonsAr	availability	availabilityAr	featured	published	tags
+```
 
-## What the owner does
+## Rappel
 
-The owner only needs to:
-- open the `Produits` tab
-- add or edit rows
-- paste the Drive image link
-- set `published` to `TRUE` or `FALSE`
+- `features` = points forts
+- `reasons` = pourquoi choisir ce produit
+- `category` peut contenir plusieurs familles :
 
-Use `published = FALSE` instead of deleting rows when possible.
-
-## Current integration
-
-The following parts of the site are already wired to this product source:
-- home page
-- catalogue
-- Arabic home page
-- Arabic catalogue
-- product detail pages
-- Arabic product detail pages
-
-## Next step
-
-After you create the `Produits` tab, send me:
-- the spreadsheet ID
-- the products Apps Script `/exec` URL
-
-Then I can help you validate the products JSON and finish the last checks.
+```text
+Maison / Organisation
+Voiture / Beauté
+```
