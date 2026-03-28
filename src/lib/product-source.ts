@@ -1,14 +1,15 @@
 import { products as localProducts } from '../data/products';
 import type { Product } from './types';
 
-const PRODUCTS_FEED_URL = import.meta.env.PRODUCTS_FEED_URL || import.meta.env.PUBLIC_PRODUCTS_FEED_URL || '';
+const PRODUCTS_FEED_URL =
+  import.meta.env.PRODUCTS_FEED_URL || import.meta.env.PUBLIC_PRODUCTS_FEED_URL || '';
+
 const IS_DEV = import.meta.env.DEV;
 const PRODUCT_CACHE_TTL_MS = IS_DEV ? 0 : 60_000;
 
 const defaultProduct: Product = localProducts[0];
 let cachedProductsPromise: Promise<Product[]> | null = null;
 let cachedProductsAt = 0;
-const imageCache = new Map<string, Promise<string>>();
 
 const splitList = (value: unknown) =>
   String(value || '')
@@ -96,7 +97,12 @@ const normalizeProduct = (row: Record<string, unknown>, index: number): Product 
     reasons: splitList(row.reasons),
     reasonsAr: splitList(row.reasonsAr),
     availability: String(
-      row.availability || (typeof quantity === 'number' ? (quantity > 0 ? 'Disponible' : 'Rupture de stock') : defaultProduct.availability)
+      row.availability ||
+        (typeof quantity === 'number'
+          ? quantity > 0
+            ? 'Disponible'
+            : 'Rupture de stock'
+          : defaultProduct.availability)
     ),
     availabilityAr: String(row.availabilityAr || ''),
     quantity,
@@ -106,58 +112,16 @@ const normalizeProduct = (row: Record<string, unknown>, index: number): Product 
   };
 };
 
-const fetchImageAsDataUrl = async (url: string) => {
-  if (!/^https?:\/\//i.test(url)) return url;
-
-  if (IS_DEV) {
-    imageCache.delete(url);
-  }
-
-  if (!imageCache.has(url)) {
-    imageCache.set(
-      url,
-      (async () => {
-        try {
-          const response = await fetch(url, {
-            headers: {
-              Accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8'
-            }
-          });
-
-          if (!response.ok) return url;
-
-          const contentType = response.headers.get('content-type') || '';
-          if (!contentType.startsWith('image/')) return url;
-
-          const arrayBuffer = await response.arrayBuffer();
-          const buffer = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-          return `data:${contentType};base64,${buffer}`;
-        } catch {
-          return url;
-        }
-      })()
-    );
-  }
-
-  return imageCache.get(url) as Promise<string>;
-};
-
-const inlineRemoteProductImages = async (products: Product[]) =>
-  Promise.all(
-    products.map(async (product) => ({
-      ...product,
-      images: await Promise.all(product.images.map((image) => fetchImageAsDataUrl(image)))
-    }))
-  );
-
 const extractRows = (payload: unknown): Record<string, unknown>[] => {
   if (Array.isArray(payload)) return payload as Record<string, unknown>[];
+
   if (payload && typeof payload === 'object') {
     const value = payload as { products?: unknown; data?: unknown; items?: unknown };
     if (Array.isArray(value.products)) return value.products as Record<string, unknown>[];
     if (Array.isArray(value.data)) return value.data as Record<string, unknown>[];
     if (Array.isArray(value.items)) return value.items as Record<string, unknown>[];
   }
+
   return [];
 };
 
@@ -174,13 +138,17 @@ const fetchSheetProducts = async () => {
       requestUrl.searchParams.set('_ts', String(Date.now()));
     }
 
+    console.info(`[product-source] PRODUCTS_FEED_URL=${requestUrl.toString()}`);
+
     const response = await fetch(requestUrl.toString(), {
       headers: { Accept: 'application/json' },
       cache: 'no-store'
     });
 
     if (!response.ok) {
-      console.error(`[product-source] Feed request failed with status ${response.status} for ${requestUrl.toString()}`);
+      console.error(
+        `[product-source] Feed request failed with status ${response.status} for ${requestUrl.toString()}`
+      );
       return null;
     }
 
@@ -189,36 +157,44 @@ const fetchSheetProducts = async () => {
 
     try {
       payload = JSON.parse(rawText);
-    } catch (error) {
+    } catch {
       console.error(
         `[product-source] Feed response is not valid JSON for ${requestUrl.toString()}. First 300 chars: ${rawText.slice(0, 300)}`
       );
       return null;
     }
 
+    const payloadKeys =
+      payload && typeof payload === 'object'
+        ? Object.keys(payload as Record<string, unknown>).join(',')
+        : typeof payload;
+
+    console.info(`[product-source] Feed payload keys=${payloadKeys}`);
+
     const rows = extractRows(payload);
     console.info(`[product-source] Feed rows count=${rows.length}`);
-    if (!rows.length) {
-      const payloadShape =
-        payload && typeof payload === 'object'
-          ? Object.keys(payload as Record<string, unknown>).join(', ')
-          : typeof payload;
+
+    if (rows.length === 0) {
       const payloadMessage =
         payload && typeof payload === 'object' && 'message' in (payload as Record<string, unknown>)
           ? String((payload as Record<string, unknown>).message || '')
           : '';
+
       console.warn(
-        `[product-source] Feed returned no rows for ${requestUrl.toString()}. Payload shape: ${payloadShape || 'empty-object'}${
+        `[product-source] Feed returned no rows for ${requestUrl.toString()}${
           payloadMessage ? `. Message: ${payloadMessage}` : ''
         }. Using local fallback products.`
       );
       return null;
     }
 
-    const products = rows.map(normalizeProduct).filter((product) => product.published !== false);
+    const products = rows.map(normalizeProduct);
+    const publishedProducts = products.filter((product) => product.published !== false);
 
-console.info(`[product-source] Loaded ${products.length} product(s) from sheet feed.`);
-return products.length ? products : null;
+    console.info(`[product-source] Loaded ${products.length} total product(s) from sheet feed.`);
+    console.info(`[product-source] Loaded ${publishedProducts.length} published product(s) from sheet feed.`);
+
+    return publishedProducts.length ? publishedProducts : null;
   } catch (error) {
     console.error(`[product-source] Feed fetch crashed for ${PRODUCTS_FEED_URL}:`, error);
     return null;
@@ -242,6 +218,7 @@ export const getProducts = async () => {
       console.warn('[product-source] Falling back to local src/data/products.ts dataset.');
       return localProducts;
     })();
+
     cachedProductsAt = now;
   }
 
@@ -349,7 +326,12 @@ export const getPopularProducts = (products: Product[]) => {
   return (matches.length ? matches : uniqueProducts(products)).slice(0, 4);
 };
 
-export const getAvailableColors = (products: Product[], productSlug: string, variantGroup?: string, locale: 'fr' | 'ar' = 'fr') =>
+export const getAvailableColors = (
+  products: Product[],
+  productSlug: string,
+  variantGroup?: string,
+  locale: 'fr' | 'ar' = 'fr'
+) =>
   Array.from(
     new Set(
       products
