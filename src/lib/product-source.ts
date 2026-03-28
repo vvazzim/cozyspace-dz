@@ -129,8 +129,9 @@ const fetchImageAsDataUrl = async (url: string) => {
           const contentType = response.headers.get('content-type') || '';
           if (!contentType.startsWith('image/')) return url;
 
-          const buffer = Buffer.from(await response.arrayBuffer());
-          return `data:${contentType};base64,${buffer.toString('base64')}`;
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+          return `data:${contentType};base64,${buffer}`;
         } catch {
           return url;
         }
@@ -161,7 +162,10 @@ const extractRows = (payload: unknown): Record<string, unknown>[] => {
 };
 
 const fetchSheetProducts = async () => {
-  if (!PRODUCTS_FEED_URL) return null;
+  if (!PRODUCTS_FEED_URL) {
+    console.warn('[product-source] PRODUCTS_FEED_URL is missing. Using local fallback products.');
+    return null;
+  }
 
   try {
     const requestUrl = new URL(PRODUCTS_FEED_URL);
@@ -175,15 +179,48 @@ const fetchSheetProducts = async () => {
       cache: 'no-store'
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.error(`[product-source] Feed request failed with status ${response.status} for ${requestUrl.toString()}`);
+      return null;
+    }
 
-    const payload = await response.json();
+    const rawText = await response.text();
+    let payload: unknown;
+
+    try {
+      payload = JSON.parse(rawText);
+    } catch (error) {
+      console.error(
+        `[product-source] Feed response is not valid JSON for ${requestUrl.toString()}. First 300 chars: ${rawText.slice(0, 300)}`
+      );
+      return null;
+    }
+
     const rows = extractRows(payload);
-    const products = rows.map(normalizeProduct).filter((product) => product.published !== false);
-    const hydratedProducts = await inlineRemoteProductImages(products);
+    console.info(`[product-source] Feed rows count=${rows.length}`);
+    if (!rows.length) {
+      const payloadShape =
+        payload && typeof payload === 'object'
+          ? Object.keys(payload as Record<string, unknown>).join(', ')
+          : typeof payload;
+      const payloadMessage =
+        payload && typeof payload === 'object' && 'message' in (payload as Record<string, unknown>)
+          ? String((payload as Record<string, unknown>).message || '')
+          : '';
+      console.warn(
+        `[product-source] Feed returned no rows for ${requestUrl.toString()}. Payload shape: ${payloadShape || 'empty-object'}${
+          payloadMessage ? `. Message: ${payloadMessage}` : ''
+        }. Using local fallback products.`
+      );
+      return null;
+    }
 
-    return hydratedProducts.length ? hydratedProducts : null;
-  } catch {
+    const products = rows.map(normalizeProduct).filter((product) => product.published !== false);
+
+console.info(`[product-source] Loaded ${products.length} product(s) from sheet feed.`);
+return products.length ? products : null;
+  } catch (error) {
+    console.error(`[product-source] Feed fetch crashed for ${PRODUCTS_FEED_URL}:`, error);
     return null;
   }
 };
@@ -200,7 +237,10 @@ export const getProducts = async () => {
   if (!cachedProductsPromise || isCacheExpired) {
     cachedProductsPromise = (async () => {
       const sheetProducts = await fetchSheetProducts();
-      return sheetProducts || localProducts;
+      if (sheetProducts) return sheetProducts;
+
+      console.warn('[product-source] Falling back to local src/data/products.ts dataset.');
+      return localProducts;
     })();
     cachedProductsAt = now;
   }
@@ -260,7 +300,7 @@ export const getProductCategoryLabel = (product: Product, locale: 'fr' | 'ar' = 
   };
 
   return getProductCategoryKeys(product)
-    .map((key) => labels[locale][key])
+    .map((key) => labels[locale][key as keyof (typeof labels)['fr']])
     .join(' / ');
 };
 

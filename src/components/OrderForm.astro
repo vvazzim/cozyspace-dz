@@ -12,7 +12,7 @@ interface Props {
 
 const { productName, productSlug, productPrice = '', colors = [], embedded = false, locale = 'fr' } = Astro.props;
 const labels = uiText[locale].order;
-const submitUrl = import.meta.env.PUBLIC_GOOGLE_SCRIPT_URL || '';
+const submitUrl = "/.netlify/functions/submit-order";
 const countryCodes = [
   { label: '+213  Algerie', value: '+213' },
   { label: '+33  France', value: '+33' },
