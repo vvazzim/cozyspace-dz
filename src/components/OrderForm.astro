@@ -13,6 +13,7 @@ interface Props {
 const { productName, productSlug, productPrice = '', colors = [], embedded = false, locale = 'fr' } = Astro.props;
 const labels = uiText[locale].order;
 const submitUrl = "/.netlify/functions/submit-order";
+const directScriptUrl = import.meta.env.PUBLIC_GOOGLE_SCRIPT_URL || '';
 const countryCodes = [
   { label: '+213  Algerie', value: '+213' },
   { label: '+33  France', value: '+33' },
@@ -42,7 +43,7 @@ const countryCodes = [
         )}
       </div>
 
-      <form id="order-form" action={submitUrl} method="POST" class="mt-6 space-y-4">
+      <form id="order-form" action={submitUrl} method="POST" data-direct-url={directScriptUrl} class="mt-6 space-y-4">
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
             <label for="firstName" class="block text-sm font-medium text-brand-charcoal">{labels.firstName}</label>
@@ -313,24 +314,64 @@ const countryCodes = [
         payload.append(key, String(value));
       }
 
-      const response = await fetch(form.action, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-        },
-        body: payload.toString()
-      });
-
-      const responseText = await response.text();
+      let responseOk = false;
       let responseJson = null;
+      const directUrl = form.getAttribute('data-direct-url') || '';
 
       try {
-        responseJson = JSON.parse(responseText || '{}');
-      } catch {
-        responseJson = null;
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: payload.toString()
+        });
+
+        const responseText = await response.text();
+        try {
+          responseJson = JSON.parse(responseText || '{}');
+        } catch {
+          responseJson = null;
+        }
+
+        if (response.ok && (!responseJson || responseJson.success !== false)) {
+          responseOk = true;
+        } else if (response.status === 404 && directUrl) {
+          // Si la fonction serverless n'est pas déployée sur cet hébergeur (ex. Cloudflare Pages sans Netlify),
+          // on envoie directement à Google Apps Script
+          await fetch(directUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+            },
+            body: payload.toString(),
+            mode: 'no-cors'
+          });
+          responseOk = true;
+        } else {
+          throw new Error(responseJson?.message || "Echec de l'envoi de la commande.");
+        }
+      } catch (err) {
+        if (directUrl && !responseOk) {
+          try {
+            await fetch(directUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+              },
+              body: payload.toString(),
+              mode: 'no-cors'
+            });
+            responseOk = true;
+          } catch (directErr) {
+            throw err;
+          }
+        } else {
+          throw err;
+        }
       }
 
-      if (!response.ok || (responseJson && responseJson.success === false)) {
+      if (!responseOk) {
         throw new Error(responseJson?.message || "Echec de l'envoi de la commande.");
       }
 

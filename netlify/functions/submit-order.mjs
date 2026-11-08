@@ -68,7 +68,21 @@ export const handler = async (event) => {
   }
 
   try {
-    const payload = JSON.parse(event.body || '{}');
+    let rawBody = event.body || '';
+    if (event.isBase64Encoded) {
+      rawBody = Buffer.from(rawBody, 'base64').toString('utf8');
+    }
+
+    let payload = {};
+    try {
+      payload = JSON.parse(rawBody || '{}');
+    } catch {
+      const formParams = new URLSearchParams(rawBody);
+      for (const [key, value] of formParams.entries()) {
+        payload[key] = value;
+      }
+    }
+
     const googleScriptUrl =
       process.env.GOOGLE_SCRIPT_URL || process.env.PUBLIC_GOOGLE_SCRIPT_URL || '';
 

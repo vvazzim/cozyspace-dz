@@ -2,7 +2,7 @@
 import MainLayout from '../../../layouts/MainLayout.astro';
 import ProductCard from '../../../components/ProductCard.astro';
 import OrderForm from '../../../components/OrderForm.astro';
-import { getProductColors, getProducts, getSimilarProducts } from '../../../lib/product-source';
+import { getAvailableColors, getProductColors, getProducts, getSimilarProducts, getVariants } from '../../../lib/product-source';
 
 const productPageCopy: Record<
   string,
@@ -38,7 +38,10 @@ const collection = product.collectionAr || product.collection;
 const description = product.shortDescriptionAr || product.shortDescription;
 const features = product.featuresAr || product.features;
 const similarProducts = getSimilarProducts(products, product);
-const colors = getProductColors(product, 'ar');
+const variants = getVariants(products, product);
+const colors = getAvailableColors(products, product.slug, product.variantGroup, 'ar');
+const allImages = Array.from(new Set(variants.flatMap((v) => v.images))).filter(Boolean);
+const productImages = allImages.length ? allImages : product.images;
 const galleryId = `product-gallery-${product.slug}`;
 const pageCopy = productPageCopy[product.slug];
 const headingTitle = pageCopy?.title || displayName;
@@ -85,7 +88,7 @@ const schema = {
               class="product-gallery-track flex snap-x snap-mandatory overflow-x-auto scroll-smooth rounded-[1.5rem]"
               dir="ltr"
             >
-              {product.images.map((image, index) => (
+              {productImages.map((image, index) => (
                 <figure class="product-gallery-slide w-full min-w-full overflow-hidden bg-brand-pearl">
                   <img
                     src={image}
@@ -98,7 +101,7 @@ const schema = {
               ))}
             </div>
 
-            {product.images.length > 1 && (
+            {productImages.length > 1 && (
               <>
                 <button
                   type="button"
@@ -120,9 +123,9 @@ const schema = {
             )}
           </div>
 
-          {product.images.length > 1 && (
+          {productImages.length > 1 && (
             <div class="mt-4 flex flex-wrap justify-center gap-2" data-gallery-dots={galleryId}>
-              {product.images.map((image, index) => (
+              {productImages.map((image, index) => (
                 <button
                   type="button"
                   class="product-gallery-dot h-2.5 w-2.5 rounded-full bg-brand-line"

@@ -4,6 +4,95 @@ import type { Product } from './types';
 const PRODUCTS_FEED_URL =
   import.meta.env.PRODUCTS_FEED_URL || import.meta.env.PUBLIC_PRODUCTS_FEED_URL || '';
 
+const SPREADSHEET_ID =
+  import.meta.env.GOOGLE_SPREADSHEET_ID ||
+  import.meta.env.PUBLIC_GOOGLE_SPREADSHEET_ID ||
+  '1Do4iJU8TdtvwmODoH_ypc1xdrZTouUCxhOxVQTJK_do';
+
+const parseCsv = (csvText: string): Record<string, unknown>[] => {
+  const lines: string[] = [];
+  let currentLine = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < csvText.length; i++) {
+    const char = csvText[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      currentLine += char;
+    } else if (char === '\n' && !inQuotes) {
+      lines.push(currentLine);
+      currentLine = '';
+    } else if (char === '\r' && !inQuotes) {
+      // ignore
+    } else {
+      currentLine += char;
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+  if (lines.length < 2) return [];
+
+  const parseRow = (line: string): string[] => {
+    const row: string[] = [];
+    let field = '';
+    let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        if (inQ && line[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQ = !inQ;
+        }
+      } else if (char === ',' && !inQ) {
+        row.push(field.trim());
+        field = '';
+      } else {
+        field += char;
+      }
+    }
+    row.push(field.trim());
+    return row;
+  };
+
+  const headers = parseRow(lines[0]).map((h) => h.replace(/^["']|["']$/g, '').trim());
+  const rows: Record<string, unknown>[] = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const values = parseRow(lines[i]);
+    const row: Record<string, unknown> = {};
+    let hasValue = false;
+    for (let h = 0; h < headers.length; h++) {
+      const val = (values[h] || '').replace(/^["']|["']$/g, '').trim();
+      row[headers[h]] = val;
+      if (val) hasValue = true;
+    }
+    if (hasValue && row.id) rows.push(row);
+  }
+
+  return rows;
+};
+
+const fetchDirectGoogleSheetCsv = async (sheetId: string) => {
+  if (!sheetId) return null;
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Produits`;
+  try {
+    console.info(`[product-source] Fetching direct Google Sheet CSV from: ${csvUrl}`);
+    const res = await fetch(csvUrl, { cache: 'no-store' });
+    if (!res.ok) {
+      console.warn(`[product-source] Direct CSV request returned status ${res.status}`);
+      return null;
+    }
+    const csvText = await res.text();
+    const rows = parseCsv(csvText);
+    console.info(`[product-source] Loaded ${rows.length} product rows directly from Google Sheet CSV.`);
+    return rows;
+  } catch (err) {
+    console.warn(`[product-source] Direct Google Sheet CSV fetch failed:`, err);
+    return null;
+  }
+};
+
 const IS_DEV = import.meta.env.DEV;
 const PRODUCT_CACHE_TTL_MS = IS_DEV ? 0 : 60_000;
 
@@ -175,16 +264,37 @@ const fetchSheetProducts = async () => {
     console.info(`[product-source] Feed rows count=${rows.length}`);
 
     if (rows.length === 0) {
+      console.info(`[product-source] Apps Script n'a renvoye aucun produit, essai direct via Google Sheet CSV (${SPREADSHEET_ID})...`);
+      const csvRows = await fetchDirectGoogleSheetCsv(SPREADSHEET_ID);
+      if (csvRows && csvRows.length > 0) {
+        console.info(`[product-source] Succes ! ${csvRows.length} produit(s) charges directement depuis le Google Sheet en CSV.`);
+        const products = csvRows.map(normalizeProduct);
+        const publishedProducts = products.filter((product) => product.published !== false);
+        return publishedProducts.length ? publishedProducts : null;
+      }
+
       const payloadMessage =
         payload && typeof payload === 'object' && 'message' in (payload as Record<string, unknown>)
           ? String((payload as Record<string, unknown>).message || '')
           : '';
 
-      console.warn(
-        `[product-source] Feed returned no rows for ${requestUrl.toString()}${
-          payloadMessage ? `. Message: ${payloadMessage}` : ''
-        }. Using local fallback products.`
-      );
+      if (payloadMessage.toLowerCase().includes('commande')) {
+        console.error(
+          `[product-source] ERREUR CRITIQUE DE DEPLOIEMENT GOOGLE APPS SCRIPT :\n` +
+          `Le script Google Apps Script (${requestUrl.toString()}) a repondu "Commande enregistree" lors d'un appel GET.\n` +
+          `Cela signifie que le deploiement Apps Script execute une ancienne version ou doGet() traitait uniquement les commandes.\n` +
+          `POUR REPARER :\n` +
+          `1. Ouvrez votre Google Sheet > Extensions > Apps Script\n` +
+          `2. Collez la version 2.0.0 de google-apps-script.js\n` +
+          `3. Cliquez sur Deployer > Gerer les deploiements > Modifier (crayon) > Version : "Nouvelle version" > Deployer.`
+        );
+      } else {
+        console.warn(
+          `[product-source] Feed returned no rows for ${requestUrl.toString()}${
+            payloadMessage ? `. Message: ${payloadMessage}` : ''
+          }. Using local fallback products.`
+        );
+      }
       return null;
     }
 
@@ -225,13 +335,73 @@ export const getProducts = async () => {
   return cachedProductsPromise;
 };
 
-export const getFeaturedProducts = (products: Product[]) =>
-  products.filter(
-    (product, index, list) => product.featured && index === list.findIndex((item) => item.id === product.id)
-  );
+export const getProductGroupKey = (product: Product): string => {
+  if (product.variantGroup && product.variantGroup.trim()) {
+    return product.variantGroup.trim().toLowerCase();
+  }
+  const base = (product.baseName || product.name || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+(noir|blanc|rose|bleu|rouge|vert|gris|dore|argent|black|white|pink|blue|red)\b/gi, '');
+  return base || product.slug || product.id;
+};
 
-export const getCatalogProducts = (products: Product[]) =>
-  products.filter((product, index, list) => index === list.findIndex((item) => item.id === product.id));
+export const mergeProductVariants = (products: Product[]): Product[] => {
+  const groups = new Map<string, Product[]>();
+
+  for (const product of products) {
+    const key = getProductGroupKey(product);
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key)!.push(product);
+  }
+
+  const mergedList: Product[] = [];
+
+  for (const [, variants] of groups.entries()) {
+    if (variants.length === 1) {
+      mergedList.push(variants[0]);
+      continue;
+    }
+
+    const primary = variants[0];
+    const allColorsFr = Array.from(new Set(variants.flatMap((v) => splitColorList(v.color))));
+    const allColorsAr = Array.from(new Set(variants.flatMap((v) => splitColorList(v.colorAr || v.color))));
+    const allImages = Array.from(new Set(variants.flatMap((v) => v.images))).filter(Boolean);
+    const totalQuantity = variants.reduce(
+      (acc, v) => acc + (typeof v.quantity === 'number' ? v.quantity : 0),
+      0
+    );
+    const hasInStock = variants.some(
+      (v) =>
+        v.availability?.toLowerCase() === 'disponible' ||
+        (typeof v.quantity === 'number' && v.quantity > 0)
+    );
+
+    const mergedProduct: Product = {
+      ...primary,
+      name: primary.baseName || primary.name,
+      baseName: primary.baseName || primary.name,
+      color: allColorsFr.join(' / '),
+      colorAr: allColorsAr.join(' / '),
+      images: allImages.length ? allImages : primary.images,
+      quantity: totalQuantity > 0 ? totalQuantity : primary.quantity,
+      availability: hasInStock ? 'Disponible' : primary.availability,
+      availabilityAr: hasInStock ? 'متوفر' : primary.availabilityAr,
+      featured: variants.some((v) => v.featured)
+    };
+
+    mergedList.push(mergedProduct);
+  }
+
+  return mergedList;
+};
+
+export const getFeaturedProducts = (products: Product[]) =>
+  getCatalogProducts(products).filter((product) => product.featured);
+
+export const getCatalogProducts = (products: Product[]) => mergeProductVariants(products);
 
 const hasTag = (product: Product, patterns: string[]) => {
   const haystack = [product.slug, product.category, product.collection, ...product.tags].join(' ').toLowerCase();
@@ -331,20 +501,29 @@ export const getAvailableColors = (
   productSlug: string,
   variantGroup?: string,
   locale: 'fr' | 'ar' = 'fr'
-) =>
-  Array.from(
+) => {
+  const target = products.find((p) => p.slug === productSlug);
+  const targetKey = target
+    ? getProductGroupKey(target)
+    : (variantGroup || productSlug).toLowerCase();
+
+  const matching = products.filter((item) => getProductGroupKey(item) === targetKey);
+  return Array.from(
     new Set(
-      products
-        .filter((item) => (variantGroup ? item.variantGroup === variantGroup : item.slug === productSlug))
-        .flatMap((item) => splitColorList(locale === 'ar' ? item.colorAr || item.color : item.color))
+      matching.flatMap((item) =>
+        splitColorList(locale === 'ar' ? item.colorAr || item.color : item.color)
+      )
     )
   );
+};
 
 export const getProductColors = (product: Product, locale: 'fr' | 'ar' = 'fr') =>
   splitColorList(locale === 'ar' ? product.colorAr || product.color : product.color);
 
-export const getVariants = (products: Product[], product: Product) =>
-  products.filter((item) => (product.variantGroup ? item.variantGroup === product.variantGroup : item.slug === product.slug));
+export const getVariants = (products: Product[], product: Product) => {
+  const groupKey = getProductGroupKey(product);
+  return products.filter((item) => getProductGroupKey(item) === groupKey);
+};
 
 export const getSimilarProducts = (products: Product[], product: Product) =>
   products
