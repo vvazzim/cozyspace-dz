@@ -65,12 +65,29 @@ const parseCsv = (csvText: string): Record<string, unknown>[] => {
     for (let h = 0; h < headers.length; h++) {
       const val = (values[h] || '').replace(/^["']|["']$/g, '').trim();
       row[headers[h]] = val;
+      row[headers[h].toLowerCase()] = val;
       if (val) hasValue = true;
     }
-    if (hasValue && row.id) rows.push(row);
+    const rowId = row.id || row.Id || row.ID || row.slug || row.Slug;
+    if (hasValue && rowId) rows.push(row);
   }
 
   return rows;
+};
+
+const getField = (row: Record<string, unknown>, ...keys: string[]): unknown => {
+  for (const k of keys) {
+    if (row[k] !== undefined && row[k] !== null && String(row[k]).trim() !== '') {
+      return row[k];
+    }
+    const lowerK = k.toLowerCase().replace(/[\s_-]/g, '');
+    for (const [rk, rv] of Object.entries(row)) {
+      if (rk.toLowerCase().replace(/[\s_-]/g, '') === lowerK && rv !== undefined && rv !== null && String(rv).trim() !== '') {
+        return rv;
+      }
+    }
+  }
+  return undefined;
 };
 
 const fetchDirectGoogleSheetCsv = async (sheetId: string) => {
@@ -157,47 +174,59 @@ const normalizeDriveImages = (value: unknown) => {
 };
 
 const normalizeProduct = (row: Record<string, unknown>, index: number): Product => {
-  const images = normalizeDriveImages(row.images || row.image);
-  const quantityValue = Number.parseInt(String(row.quantity ?? ''), 10);
+  const images = normalizeDriveImages(getField(row, 'images', 'image', 'photos', 'photo'));
+  const rawQty = getField(row, 'quantity', 'stock', 'qte', 'quantite');
+  const quantityValue = Number.parseInt(String(rawQty ?? ''), 10);
   const quantity = Number.isFinite(quantityValue) ? quantityValue : undefined;
-  const published = normalizeBoolean(row.published, true);
-  const featured = normalizeBoolean(row.featured, false);
+  const published = normalizeBoolean(getField(row, 'published', 'publie', 'actif', 'active'), true);
+  const featured = normalizeBoolean(getField(row, 'featured', 'vedette'), false);
+
+  const rawName = String(getField(row, 'name', 'nom', 'title', 'titre') || getField(row, 'slug') || defaultProduct.name);
+  const rawNameAr = String(getField(row, 'nameAr', 'nomAr', 'name_ar', 'nom_ar') || '');
+  const baseName = String(getField(row, 'baseName', 'nomBase', 'base_name') || rawName);
+  const baseNameAr = String(getField(row, 'baseNameAr', 'nomBaseAr', 'base_name_ar') || rawNameAr);
+  const rawDesc = String(getField(row, 'shortDescription', 'description', 'short_description', 'desc') || defaultProduct.shortDescription);
+  const rawDescAr = String(getField(row, 'shortDescriptionAr', 'descriptionAr', 'short_description_ar', 'descAr') || '');
+  const rawPrice = String(getField(row, 'price', 'prix', 'Price', 'Prix', 'tarif') || defaultProduct.price);
+  const rawOldPrice = String(getField(row, 'oldPrice', 'old_price', 'ancienPrix', 'ancien_prix') || '');
 
   return {
-    id: String(row.id || `sheet-product-${index + 1}`),
-    slug: String(row.slug || `produit-${index + 1}`),
-    name: String(row.name || defaultProduct.name),
-    nameAr: String(row.nameAr || ''),
-    baseName: String(row.baseName || row.name || defaultProduct.baseName || defaultProduct.name),
-    baseNameAr: String(row.baseNameAr || ''),
-    color: String(row.color || ''),
-    colorAr: String(row.colorAr || ''),
-    variantGroup: String(row.variantGroup || ''),
-    category: String(row.category || defaultProduct.category),
-    collection: String(row.collection || defaultProduct.collection),
-    collectionAr: String(row.collectionAr || ''),
-    price: String(row.price || defaultProduct.price),
-    oldPrice: String(row.oldPrice || ''),
+    id: String(getField(row, 'id', 'Id', 'ID') || `sheet-product-${index + 1}`),
+    slug: String(getField(row, 'slug', 'Slug') || `produit-${index + 1}`),
+    name: rawName,
+    nameAr: rawNameAr,
+    baseName: baseName,
+    baseNameAr: baseNameAr,
+    color: String(getField(row, 'color', 'couleur') || ''),
+    colorAr: String(getField(row, 'colorAr', 'couleurAr', 'color_ar') || ''),
+    variantGroup: String(getField(row, 'variantGroup', 'groupe', 'variant_group') || ''),
+    category: String(getField(row, 'category', 'categorie') || defaultProduct.category),
+    collection: String(getField(row, 'collection') || defaultProduct.collection),
+    collectionAr: String(getField(row, 'collectionAr', 'collection_ar') || ''),
+    price: rawPrice,
+    oldPrice: rawOldPrice,
     images: images.length ? images : defaultProduct.images,
-    shortDescription: String(row.shortDescription || defaultProduct.shortDescription),
-    shortDescriptionAr: String(row.shortDescriptionAr || ''),
-    features: splitList(row.features).length ? splitList(row.features) : defaultProduct.features,
-    featuresAr: splitList(row.featuresAr),
-    reasons: splitList(row.reasons),
-    reasonsAr: splitList(row.reasonsAr),
+    shortDescription: rawDesc,
+    shortDescriptionAr: rawDescAr,
+    features: splitList(getField(row, 'features', 'caracteristiques', 'points_forts')).length
+      ? splitList(getField(row, 'features', 'caracteristiques', 'points_forts'))
+      : defaultProduct.features,
+    featuresAr: splitList(getField(row, 'featuresAr', 'caracteristiquesAr')),
+    reasons: splitList(getField(row, 'reasons', 'raisons', 'pourquoi')),
+    reasonsAr: splitList(getField(row, 'reasonsAr', 'raisonsAr')),
     availability: String(
-      row.availability ||
+      getField(row, 'availability', 'disponibilite') ||
         (typeof quantity === 'number'
           ? quantity > 0
             ? 'Disponible'
             : 'Rupture de stock'
           : defaultProduct.availability)
     ),
-    availabilityAr: String(row.availabilityAr || ''),
+    availabilityAr: String(getField(row, 'availabilityAr', 'disponibiliteAr') || ''),
     quantity,
     published,
     featured,
-    tags: splitList(row.tags)
+    tags: splitList(getField(row, 'tags', 'mots_cles'))
   };
 };
 

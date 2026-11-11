@@ -31,11 +31,11 @@ export const siteData: SiteData = {
       href: 'https://www.facebook.com/share/18BB6TfA1N/?mibextid=wwXIfr'
     }
   ],
-  heroBadge: 'Produits utiles | Livraison Algerie | Paiement a la livraison',
+  heroBadge: 'Produits utiles | Livraison 69 Wilayas | Paiement a la livraison',
   trustItems: [
     {
-      title: 'Livraison rapide',
-      description: 'Expedition dans toute l Algerie avec suivi simple et confirmation claire.'
+      title: 'Livraison 69 Wilayas',
+      description: 'Expedition rapide et securisee dans les 69 wilayas d Algerie avec confirmation par appel.'
     },
     {
       title: 'Paiement a la livraison',
@@ -94,11 +94,11 @@ export const arabicSiteData: SiteData = {
       href: 'https://www.facebook.com/share/18BB6TfA1N/?mibextid=wwXIfr'
     }
   ],
-  heroBadge: 'منتجات مفيدة | توصيل لكل الولايات | الدفع عند الاستلام',
+  heroBadge: 'منتجات مفيدة | توصيل 69 ولاية | الدفع عند الاستلام',
   trustItems: [
     {
-      title: 'توصيل سريع',
-      description: 'نوفر التوصيل إلى جميع الولايات مع متابعة واضحة وسهلة.'
+      title: 'توصيل 69 ولاية',
+      description: 'نوفر التوصيل السريع إلى كافة الـ 69 ولاية مع متابعة واضحة وسهلة.'
     },
     {
       title: 'الدفع عند الاستلام',

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="cozyBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1F2937"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="cozyGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E5C799"/>
+      <stop offset="100%" stop-color="#C2A478"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="192" height="192" rx="42" fill="url(#cozyBg)"/>
+  <rect x="4" y="4" width="184" height="184" rx="38" fill="none" stroke="url(#cozyGold)" stroke-width="2" opacity="0.3"/>
+  
+  <!-- Cozy House / Living space icon -->
+  <path d="M 96 46 L 52 82 L 62 82 L 62 136 L 86 136 L 86 106 L 106 106 L 106 136 L 130 136 L 130 82 L 140 82 Z" fill="url(#cozyGold)"/>
+  
+  <!-- DZ Tag -->
+  <rect x="76" y="148" width="40" height="16" rx="8" fill="url(#cozyGold)"/>
+  <text x="96" y="160" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="900" fill="#1F2937" text-anchor="middle" letter-spacing="1">DZ</text>
+</svg>

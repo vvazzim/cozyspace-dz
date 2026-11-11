@@ -67,19 +67,24 @@ const cardImages = product.images.slice(0, 2);
         </p>
       )}
 
-      <div class="mt-4 flex items-end justify-between gap-4">
-        <div>
-          {product.oldPrice && (
-            <div dir="ltr" class="inline-block whitespace-nowrap text-sm text-brand-muted line-through">
-              {product.oldPrice}
-            </div>
-          )}
-          <div dir="ltr" class="inline-block whitespace-nowrap text-lg font-semibold text-brand-charcoal">
-            {product.price}
+      <div class="mt-4 flex flex-col gap-3 border-t border-brand-line/60 pt-3">
+        <div class="flex items-baseline justify-between gap-2">
+          <div class="flex items-baseline gap-2">
+            <span dir="ltr" data-price-val class="whitespace-nowrap text-lg font-semibold text-brand-charcoal">
+              {product.price}
+            </span>
+            {product.oldPrice && (
+              <span dir="ltr" class="whitespace-nowrap text-xs text-brand-muted line-through">
+                {product.oldPrice}
+              </span>
+            )}
           </div>
         </div>
-        <span class="inline-flex items-center rounded-full bg-brand-charcoal px-4 py-2 text-sm font-semibold text-white">
-          {detailLabel}
+        <span class="inline-flex w-full items-center justify-center rounded-full bg-brand-charcoal px-4 py-2.5 text-center text-sm font-semibold text-white shadow-sm transition duration-200 group-hover:bg-brand-gold group-hover:text-brand-charcoal whitespace-nowrap">
+          <span>{detailLabel}</span>
+          <svg class="h-4 w-4 ms-1.5 transition-transform duration-200 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
         </span>
       </div>
     </div>

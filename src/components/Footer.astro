@@ -38,6 +38,16 @@ const developerGithub = 'https://github.com/vvazzim';
           <a href={withLocalePath('/catalogue', locale)} class="text-white hover:text-brand-gold">{uiText[locale].nav.catalogue}</a>
           <a href={withLocalePath('/a-propos', locale)} class="text-white hover:text-brand-gold">{uiText[locale].nav.about}</a>
           <a href={withLocalePath('/contact', locale)} class="text-white hover:text-brand-gold">{uiText[locale].nav.contact}</a>
+          <button
+            type="button"
+            onclick="window.openPwaInstallPrompt && window.openPwaInstallPrompt()"
+            class="text-left text-white/90 hover:text-brand-gold transition-colors inline-flex items-center gap-1.5 pt-1"
+          >
+            <svg class="h-3.5 w-3.5 text-brand-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            {locale === 'ar' ? 'تثبيت التطبيق على الهاتف' : "Installer l'application"}
+          </button>
         </div>
       </div>
 

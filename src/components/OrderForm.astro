@@ -1,5 +1,6 @@
 ---
 import { type Locale, uiText } from '../lib/i18n';
+import { wilayasList } from '../data/wilayas';
 
 interface Props {
   productName: string;
@@ -145,12 +146,29 @@ const countryCodes = [
         </div>
 
         <div>
+          <label for="wilaya" class="block text-sm font-medium text-brand-charcoal">{labels.wilaya}</label>
+          <select
+            id="wilaya"
+            name="wilaya"
+            required
+            class="mt-1 block w-full rounded-lg border border-brand-line bg-white px-3 py-2 text-sm focus:border-brand-gold focus:outline-none"
+          >
+            <option value="" disabled selected>{labels.wilayaPlaceholder}</option>
+            {wilayasList.map((w) => (
+              <option value={`${w.code} - ${locale === 'ar' ? w.nameAr : w.nameFr}`}>
+                {w.code} - {locale === 'ar' ? `${w.nameAr} (${w.nameFr})` : `${w.nameFr} (${w.nameAr})`}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
           <label for="address" class="block text-sm font-medium text-brand-charcoal">{labels.address}</label>
           <textarea
             id="address"
             name="address"
-            rows="3"
-            minlength="8"
+            rows="2"
+            minlength="4"
             required
             class="mt-1 block w-full rounded-lg border border-brand-line px-3 py-2 text-sm focus:border-brand-gold focus:outline-none"
             placeholder={labels.addressPlaceholder}
@@ -365,6 +383,11 @@ const countryCodes = [
       }
       if (!payload.has('action')) {
         payload.append('action', 'order');
+      }
+      const wilayaVal = formData.get('wilaya');
+      const addressVal = formData.get('address');
+      if (wilayaVal && addressVal && !String(addressVal).includes(String(wilayaVal))) {
+        payload.set('address', `${wilayaVal} - ${addressVal}`);
       }
 
       const directUrl = form.getAttribute('data-direct-url') || '';
