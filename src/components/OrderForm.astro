@@ -26,6 +26,23 @@ const countryCodes = [
   { label: '+212  Maroc', value: '+212' },
   { label: '+1  USA / Canada', value: '+1' }
 ];
+
+const getColorHex = (name: string): string | null => {
+  const n = (name || '').toLowerCase().trim();
+  if (n.includes('noir') || n.includes('black') || n.includes('أسود') || n.includes('اسود')) return '#18181b';
+  if (n.includes('blanc') || n.includes('white') || n.includes('أبيض') || n.includes('ابيض')) return '#ffffff';
+  if (n.includes('noyer foncé') || n.includes('noyer fonce') || n.includes('جوز داكن')) return '#3d2314';
+  if (n.includes('noyer') || n.includes('bois foncé') || n.includes('bois fonce') || n.includes('خشب الجوز')) return '#5a3825';
+  if (n.includes('bois') || n.includes('chêne') || n.includes('chene') || n.includes('marron') || n.includes('خشب') || n.includes('بني')) return '#8c5835';
+  if (n.includes('gris') || n.includes('gray') || n.includes('grey') || n.includes('رمادي')) return '#64748b';
+  if (n.includes('beige') || n.includes('naturel') || n.includes('بيج')) return '#e5d9c5';
+  if (n.includes('doré') || n.includes('dore') || n.includes('gold') || n.includes('ذهبي')) return '#d97706';
+  if (n.includes('argent') || n.includes('silver') || n.includes('فضي')) return '#94a3b8';
+  if (n.includes('bleu') || n.includes('blue') || n.includes('أزرق') || n.includes('ازرق')) return '#1d4ed8';
+  if (n.includes('rouge') || n.includes('red') || n.includes('أحمر') || n.includes('احمر')) return '#b91c1c';
+  if (n.includes('vert') || n.includes('green') || n.includes('أخضر') || n.includes('اخضر')) return '#15803d';
+  return null;
+};
 ---
 
 <div
@@ -78,23 +95,32 @@ const countryCodes = [
           {colors.length > 0 && (
             <>
               <div class="block text-sm font-medium text-brand-charcoal">{labels.color}</div>
-              <div class="mt-2 flex flex-wrap gap-3" data-color-picker>
-                {colors.map((color, index) => (
-                  <button
-                    type="button"
-                    class:list={[
-                      'rounded-full border px-4 py-2 text-sm font-semibold transition',
-                      index === 0
-                        ? 'border-brand-charcoal bg-brand-charcoal text-white'
-                        : 'border-brand-line bg-white text-brand-charcoal hover:border-brand-gold'
-                    ]}
-                    data-color-option
-                    data-color-value={color}
-                    aria-pressed={index === 0 ? 'true' : 'false'}
-                  >
-                    {color}
-                  </button>
-                ))}
+              <div class="mt-2 flex flex-wrap gap-2.5" data-color-picker>
+                {colors.map((color, index) => {
+                  const hex = getColorHex(color);
+                  return (
+                    <button
+                      type="button"
+                      class:list={[
+                        'inline-flex items-center gap-2 rounded-full border-2 px-3.5 py-1.5 text-sm font-medium transition duration-150',
+                        index === 0
+                          ? 'border-brand-charcoal bg-brand-charcoal text-white shadow-sm'
+                          : 'border-brand-line bg-white text-brand-charcoal hover:border-brand-charcoal hover:bg-stone-50'
+                      ]}
+                      data-color-option
+                      data-color-value={color}
+                      aria-pressed={index === 0 ? 'true' : 'false'}
+                    >
+                      {hex && (
+                        <span
+                          class="h-3.5 w-3.5 rounded-full border border-black/20 shadow-inner flex-shrink-0"
+                          style={`background-color: ${hex};`}
+                        ></span>
+                      )}
+                      <span>{color}</span>
+                    </button>
+                  );
+                })}
               </div>
               <input type="hidden" id="selectedColor" name="color" value={colors[0]} />
             </>
@@ -268,6 +294,7 @@ const countryCodes = [
       item.classList.toggle('border-brand-charcoal', isActive);
       item.classList.toggle('bg-brand-charcoal', isActive);
       item.classList.toggle('text-white', isActive);
+      item.classList.toggle('shadow-sm', isActive);
       item.classList.toggle('border-brand-line', !isActive);
       item.classList.toggle('bg-white', !isActive);
       item.classList.toggle('text-brand-charcoal', !isActive);
