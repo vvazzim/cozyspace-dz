@@ -19,7 +19,7 @@ const popularProducts = getPopularProducts(catalogProducts);
 const newProducts = getNewArrivalProducts(catalogProducts);
 const promotionProducts = getPromotionProducts(catalogProducts);
 
-const sections = [
+const sections = catalogProducts.length > 4 ? [
   {
     id: 'popular',
     title: 'Produits populaires',
@@ -38,11 +38,18 @@ const sections = [
     copy: 'Produits en reduction',
     products: promotionProducts
   }
-].filter((section) => section.products.length > 0);
+].filter((section) => section.products.length > 0) : [
+  {
+    id: 'all',
+    title: 'Tous les produits',
+    copy: 'Retrouvez l\'ensemble de notre sélection disponible',
+    products: catalogProducts
+  }
+];
 ---
 
 <MainLayout title="Catalogue" description="Decouvrez nos produits selectionnes pour simplifier votre quotidien.">
-  <section class="section-shell">
+  <section class="section-shell pt-6 sm:pt-12">
     <div class="container-shell">
       <SectionTitle
         eyebrow="Catalogue"
@@ -157,5 +164,13 @@ const sections = [
       searchInput?.addEventListener('input', applyFilters);
       applyFilters();
     })();
+  </script>
+
+  <script>
+    import { initLiveProductSync } from '../scripts/live-sync';
+    initLiveProductSync({
+      containerId: 'catalog-sections',
+      locale: 'fr'
+    });
   </script>
 </MainLayout>

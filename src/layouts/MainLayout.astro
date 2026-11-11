@@ -40,10 +40,10 @@ const fullTitle = `${title} | ${siteData.brandName}`;
     <meta name="theme-color" content="#1F2937" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Cozy Space" />
   </head>
-  <body class="min-h-screen pb-[env(safe-area-inset-bottom)]">
+  <body class="min-h-screen pb-[env(safe-area-inset-bottom,0px)]">
     <LanguageSwitcher locale={locale} />
     <Header locale={locale} pageTitle={title} />
     <main>

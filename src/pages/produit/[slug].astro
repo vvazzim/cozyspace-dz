@@ -67,7 +67,7 @@ const schema = {
 <MainLayout title={headingTitle} description={longDescription} image={product.images[0]}>
   <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
 
-  <section class="section-shell" data-product-slug={product.slug}>
+  <section class="section-shell pt-6 sm:pt-12" data-product-slug={product.slug}>
     <div class="container-shell">
       <div class="mb-8">
         <div class="text-sm font-semibold uppercase tracking-brand text-brand-muted">{product.collection}</div>

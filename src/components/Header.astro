@@ -17,20 +17,23 @@ const links = [
 ];
 ---
 
-<header class="sticky top-0 z-50 border-b border-brand-line/80 bg-brand-bg/95 backdrop-blur">
-  <div class="container-shell py-3">
+<header
+  class="sticky top-0 z-50 border-b border-brand-line/80 bg-brand-bg/95 backdrop-blur transition-all"
+  style="padding-top: max(0.4rem, env(safe-area-inset-top, 0px)); padding-left: max(0.5rem, env(safe-area-inset-left, 0px)); padding-right: max(0.5rem, env(safe-area-inset-right, 0px));"
+>
+  <div class="container-shell py-2 sm:py-3">
     <div class="hidden items-center justify-between gap-6 md:flex">
-      <a href={withLocalePath('/', locale)} class="flex items-center gap-3">
-        <img src={brandAssets.logo} alt={`${siteData.brandName} logo`} class="h-12 w-12 rounded-full object-cover ring-1 ring-brand-gold/35" />
+      <a href={withLocalePath('/', locale)} class="flex items-center gap-3 group">
+        <img src={brandAssets.logo} alt={`${siteData.brandName} logo`} class="h-12 w-12 rounded-full object-cover ring-2 ring-brand-gold/40 transition duration-300 group-hover:scale-105" />
         <div>
-          <div class="text-sm font-semibold uppercase tracking-brand text-brand-charcoal">{siteData.brandName}</div>
+          <div class="text-sm font-bold uppercase tracking-brand text-brand-charcoal">{siteData.brandName}</div>
           <div class="text-xs text-brand-muted">{siteData.tagline}</div>
         </div>
       </a>
 
       <nav class="flex items-center gap-8">
         {links.map((link) => (
-          <a href={link.href} class="text-sm font-medium text-brand-muted hover:text-brand-charcoal">
+          <a href={link.href} class="text-sm font-medium text-brand-muted hover:text-brand-charcoal transition-colors">
             {link.label}
           </a>
         ))}
@@ -42,49 +45,59 @@ const links = [
       </div>
     </div>
 
+    <!-- Mobile Header : Alignement horizontal compact adapté à tous les téléphones et encoches -->
     <div class="md:hidden">
-      <div class:list={['grid items-center gap-3', locale === 'ar' ? 'grid-cols-[44px_1fr_44px]' : 'grid-cols-[44px_1fr_44px]']}>
-        <details class:list={['group relative', locale === 'ar' ? 'order-3' : 'order-1']}>
-          <summary class="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full border border-brand-line bg-white text-brand-charcoal marker:content-none">
-            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" stroke-width="1.8">
+      <div class="flex items-center justify-between gap-2">
+        <!-- Bouton Menu Hamburger -->
+        <details class="group relative flex-shrink-0">
+          <summary class="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-brand-line bg-white text-brand-charcoal shadow-soft marker:content-none transition active:scale-95">
+            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" stroke-width="2">
               <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"></path>
             </svg>
           </summary>
           <div class:list={[
-            'absolute top-14 w-64 rounded-3xl border border-brand-line bg-white p-4 shadow-premium',
-            locale === 'ar' ? 'left-0' : 'left-0'
+            'absolute top-12 w-64 max-w-[calc(100vw-2rem)] rounded-3xl border border-brand-line bg-white/95 p-4 shadow-premium backdrop-blur z-50',
+            locale === 'ar' ? 'right-0' : 'left-0'
           ]}>
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-1.5">
               {links.map((link) => (
                 <a
                   href={link.href}
                   class:list={[
-                    'rounded-2xl px-3 py-2 text-sm font-medium text-brand-charcoal hover:bg-brand-bg',
+                    'rounded-2xl px-3.5 py-2.5 text-sm font-semibold text-brand-charcoal hover:bg-brand-bg transition',
                     locale === 'ar' ? 'text-right' : 'text-left'
                   ]}
                 >
                   {link.label}
                 </a>
               ))}
+              <div class="mt-2 pt-2.5 border-t border-brand-line/70 flex items-center justify-between px-2">
+                <span class="text-xs font-semibold text-brand-muted">{locale === 'ar' ? 'اللغة :' : 'Langue :'}</span>
+                <div class="flex gap-1.5">
+                  <a href="/" class:list={['px-2.5 py-1 text-xs font-bold rounded-lg transition', locale === 'fr' ? 'bg-brand-charcoal text-white shadow-sm' : 'text-brand-charcoal hover:bg-brand-bg']}>FR</a>
+                  <a href="/ar" class:list={['px-2.5 py-1 text-xs font-bold rounded-lg transition', locale === 'ar' ? 'bg-brand-charcoal text-white shadow-sm' : 'text-brand-charcoal hover:bg-brand-bg']}>AR</a>
+                </div>
+              </div>
             </div>
           </div>
         </details>
 
-        <a href={withLocalePath('/', locale)} class:list={['flex flex-col items-center justify-center text-center', 'order-2']}>
-          <img src={brandAssets.logo} alt={`${siteData.brandName} logo`} class="h-12 w-12 rounded-full object-cover ring-1 ring-brand-gold/35" />
-          <div class="mt-2 text-[11px] font-semibold uppercase tracking-brand text-brand-charcoal">{siteData.brandName}</div>
-          <div class="text-[11px] text-brand-muted">{pageTitle || siteData.tagline}</div>
+        <!-- Logo & Nom de Marque au centre -->
+        <a href={withLocalePath('/', locale)} class="flex items-center gap-2.5 min-w-0 px-1 py-1">
+          <img src={brandAssets.logo} alt={`${siteData.brandName} logo`} class="h-9 w-9 flex-shrink-0 rounded-full object-cover ring-2 ring-brand-gold/40 shadow-sm" />
+          <div class="min-w-0 text-left rtl:text-right">
+            <div class="text-xs font-extrabold uppercase tracking-brand text-brand-charcoal truncate leading-tight">{siteData.brandName}</div>
+            <div class="text-[10px] text-brand-muted truncate max-w-[140px] sm:max-w-xs leading-tight">{siteData.tagline}</div>
+          </div>
         </a>
 
+        <!-- Bouton Recherche / Catalogue -->
         <a
           href={withLocalePath('/catalogue', locale)}
-          class:list={[
-            'flex h-11 w-11 items-center justify-center rounded-full border border-brand-line bg-white text-brand-charcoal',
-            locale === 'ar' ? 'order-1' : 'order-3'
-          ]}
+          class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-brand-line bg-white text-brand-charcoal shadow-soft transition active:scale-95"
           aria-label={uiText[locale].buttons.search}
         >
-          <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" stroke-width="1.8">
+          <svg viewBox="0 0 24 24" class="h-4.5 w-4.5 fill-none stroke-current" stroke-width="2">
             <circle cx="11" cy="11" r="6"></circle>
             <path d="M20 20l-4.2-4.2" stroke-linecap="round"></path>
           </svg>

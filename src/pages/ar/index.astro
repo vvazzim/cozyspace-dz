@@ -1,5 +1,6 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro';
+import Hero from '../../components/Hero.astro';
 import SectionTitle from '../../components/SectionTitle.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import { getAvailableColors, getCatalogProducts, getNewArrivalProducts, getPopularProducts, getProducts, getPromotionProducts } from '../../lib/product-source';
@@ -11,13 +12,49 @@ const popularProducts = getPopularProducts(catalogProducts);
 const newProducts = getNewArrivalProducts(catalogProducts);
 ---
 
-<MainLayout locale="ar" title="الرئيسية" description="منتجات مفيدة وموثوقة مختارة بعناية لتسهيل حياتك اليومية.">
-  <section class="section-shell pt-8">
-    <div class="container-shell space-y-12">
-      {promotions.length > 0 && (
+<MainLayout locale="ar" title="الرئيسية" description="COZY SPACE DZ - تشكيلة حصرية من المنتجات العملية والأنيقة لراحتك اليومية في الجزائر.">
+  <Hero locale="ar" />
+
+  <section class="section-shell pt-4">
+    <div class="container-shell space-y-14">
+      <!-- Section Principale : Nos Produits -->
+      <section>
+        <SectionTitle
+          eyebrow="تشكيلتنا المميزة"
+          title="المنتجات المتوفرة"
+          copy="اكتشف تشكيلة منتجاتنا المختارة بعناية. توصيل سريع 69 ولاية والدفع عند الاستلام."
+        />
+        <div
+          id="products-showcase-grid"
+          class:list={[
+            'mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+            catalogProducts.length === 0 ? 'hidden' : ''
+          ]}
+        >
+          {catalogProducts.map((product) => (
+            <ProductCard
+              product={product}
+              locale="ar"
+              basePath="/ar"
+              availableColors={getAvailableColors(products, product.slug, product.variantGroup, 'ar')}
+              detailLabel="عرض المنتج"
+              colorsLabel="الألوان"
+            />
+          ))}
+        </div>
+
+        {catalogProducts.length === 0 && (
+          <div id="sync-placeholder" class="mt-8 rounded-3xl border border-brand-line bg-white/80 p-12 text-center shadow-soft">
+            <p class="text-lg font-semibold text-brand-charcoal">جاري المزامنة...</p>
+            <p class="mt-2 text-sm text-brand-muted">يتم تحميل المنتجات مباشرة من جدول البيانات. يرجى تحديث الصفحة.</p>
+          </div>
+        )}
+      </section>
+
+      {promotions.length > 0 && catalogProducts.length > 3 && (
         <section>
-          <SectionTitle eyebrow="العروض" title="منتجات مخفضة" copy="المنتجات المخفضة تظهر هنا بشكل تلقائي." />
-          <div class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <SectionTitle eyebrow="العروض الحصرية" title="منتجات مخفضة" copy="استفد من أفضل التخفيضات المميزة في كوزي سبيس." />
+          <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {promotions.map((product) => (
               <ProductCard
                 product={product}
@@ -32,60 +69,60 @@ const newProducts = getNewArrivalProducts(catalogProducts);
         </section>
       )}
 
-      <section>
-        <SectionTitle
-          eyebrow="المنتجات الأكثر طلباً"
-          title="منتجات مطلوبة"
-          copy="المنتجات التي يشتريها العملاء أكثر في الوقت الحالي."
-        />
-        <div class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {popularProducts.map((product) => (
-            <ProductCard
-              product={product}
-              locale="ar"
-              basePath="/ar"
-              availableColors={getAvailableColors(products, product.slug, product.variantGroup, 'ar')}
-              detailLabel="عرض المنتج"
-              colorsLabel="الألوان"
-            />
-          ))}
-        </div>
-      </section>
+      <!-- Reassurance Section COZY SPACE DZ (Arabic) -->
+      <section class="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-gradient-to-br from-[#1A1D20] via-[#24282C] to-[#121416] p-6 text-white shadow-premium sm:p-12">
+        <!-- Glows -->
+        <div class="pointer-events-none absolute -left-16 -top-16 h-80 w-80 rounded-full bg-brand-gold/20 blur-3xl"></div>
+        <div class="pointer-events-none absolute -bottom-16 -right-16 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
 
-      <section>
-        <SectionTitle eyebrow="منتجات جديدة" title="آخر الإضافات" copy="المنتجات الجديدة تضاف هنا تلقائياً عند إدخالها." />
-        <div class="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {newProducts.map((product) => (
-            <ProductCard
-              product={product}
-              locale="ar"
-              basePath="/ar"
-              availableColors={getAvailableColors(products, product.slug, product.variantGroup, 'ar')}
-              detailLabel="عرض المنتج"
-              colorsLabel="الألوان"
-            />
-          ))}
-        </div>
-      </section>
+        <div class="relative max-w-3xl">
+          <span class="inline-flex items-center gap-2 rounded-full border border-brand-gold/50 bg-brand-gold/20 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-brand-goldsoft shadow-sm backdrop-blur">
+            <span class="h-2 w-2 rounded-full bg-brand-gold animate-pulse"></span>
+            التزامنا بالجودة
+          </span>
+          <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            تجربة التسوق مع COZY SPACE DZ
+          </h2>
+          <p class="mt-4 text-sm leading-relaxed text-slate-300 sm:text-base">
+            في Cozy Space DZ، نلتزم بتقديم منتجات عالية الجودة، مختارة بعناية ومجربة لتسهيل حياتك اليومية. نرافقك خطوة بخطوة من الطلب حتى الاستلام على باب منزلك.
+          </p>
 
-      <section class="card-shell p-8 sm:p-10">
-        <h2 class="text-2xl font-semibold text-brand-charcoal">ثقتكم هي أولويتنا</h2>
-        <p class="mt-4 max-w-4xl text-sm leading-8 text-brand-muted sm:text-base">
-          في Cozy Space DZ، نلتزم بتقديم منتجات مفيدة، موثوقة وعالية الجودة، تم اختيارها بعناية لتسهيل حياتك اليومية.
-        </p>
-        <ul class="mt-6 space-y-3 text-sm leading-8 text-brand-muted sm:text-base">
-          <li>• توصيل سريع إلى جميع ولايات الجزائر.</li>
-          <li>• الدفع عند الاستلام.</li>
-          <li>• إمكانية التحقق من المنتج قبل الدفع.</li>
-          <li>• خدمة عملاء متوفرة للاستماع ومساعدتك.</li>
-        </ul>
-        <p class="mt-6 max-w-4xl text-sm leading-8 text-brand-muted sm:text-base">
-          رضاكم في صميم مهمتنا. نبذل كل ما بوسعنا لتقديم تجربة بسيطة، آمنة ومريحة.
-        </p>
-        <a href="mailto:cozyspace.dz@gmail.com?subject=Réclamation%20Cozy%20Space%20DZ" class="btn-primary mt-6">
-          إرسال شكوى
-        </a>
+          <div class="mt-8 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-sm backdrop-blur-md transition hover:border-brand-gold/40 hover:bg-white/[0.1]">
+              <div class="text-2xl">🚚</div>
+              <h3 class="mt-2 text-sm font-bold text-white">توصيل سريع إلى 69 ولاية</h3>
+              <p class="mt-1 text-xs text-slate-300">شحن سريع مع اتصال هاتفي لتأكيد العنوان وموعد التسليم.</p>
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-sm backdrop-blur-md transition hover:border-brand-gold/40 hover:bg-white/[0.1]">
+              <div class="text-2xl">💵</div>
+              <h3 class="mt-2 text-sm font-bold text-white">الدفع عند الاستلام (COD)</h3>
+              <p class="mt-1 text-xs text-slate-300">تدفع نقداً وبكل أمان لموظف التوصيل عند استلام طردك.</p>
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-sm backdrop-blur-md transition hover:border-brand-gold/40 hover:bg-white/[0.1]">
+              <div class="text-2xl">🔍</div>
+              <h3 class="mt-2 text-sm font-bold text-white">معاينة الطرد قبل الدفع</h3>
+              <p class="mt-1 text-xs text-slate-300">افتح وافحص منتجك بكل ثقة واطمئنان قبل دفع أي دينار.</p>
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-sm backdrop-blur-md transition hover:border-brand-gold/40 hover:bg-white/[0.1]">
+              <div class="text-2xl">📞</div>
+              <h3 class="mt-2 text-sm font-bold text-white">خدمة عملاء طيلة أيام الأسبوع</h3>
+              <p class="mt-1 text-xs text-slate-300">فريق متاح للإجابة على استفساراتكم ومتابعة طلباتكم 7/7.</p>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   </section>
+
+  <script>
+    import { initLiveProductSync } from '../../scripts/live-sync';
+    initLiveProductSync({
+      containerId: 'products-showcase-grid',
+      emptyPlaceholderId: 'sync-placeholder',
+      locale: 'ar'
+    });
+  </script>
 </MainLayout>
