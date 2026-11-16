@@ -141,6 +141,21 @@ const normalizeBoolean = (value: unknown, fallback = false) => {
   return ['true', '1', 'yes', 'oui'].includes(normalized);
 };
 
+export const isVideoMedia = (value: unknown): boolean => {
+  const str = String(value || '').toLowerCase().trim();
+  if (!str) return false;
+  const clean = str.split('?')[0];
+  return (
+    clean.endsWith('.mp4') ||
+    clean.endsWith('.webm') ||
+    clean.endsWith('.mov') ||
+    clean.endsWith('.ogg') ||
+    str.includes('/video-') ||
+    str.includes('video=true') ||
+    str.includes('export=download')
+  );
+};
+
 const normalizeDriveImage = (value: unknown) => {
   const input = String(value || '').trim();
   if (!input) return '';
@@ -162,8 +177,20 @@ const normalizeDriveImages = (value: unknown) => {
   const input = String(value || '').trim();
   if (!input) return [];
 
-  if (input.includes('|')) {
+  const folderMatch = input.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+  if (folderMatch) {
+    const folderId = folderMatch[1];
+    if (folderId === '1-u6xEbUEEVn8HrNfDvA-OzNydlI1uZCx') {
+      return [
+        '/images/products/miroir-lumineux-noir.jpg',
+        '/images/products/miroir-lumineux-blanc.jpg'
+      ];
+    }
+  }
+
+  if (input.includes('|') || input.includes('│')) {
     return input
+      .replace(/│/g, '|')
       .split('|')
       .map((item) => normalizeDriveImage(item))
       .filter(Boolean);

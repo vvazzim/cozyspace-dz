@@ -1,7 +1,7 @@
 ---
 import type { Product } from '../lib/types';
 import type { Locale } from '../lib/i18n';
-import { getProductBadge, getProductCategoryLabel, getProductColors } from '../lib/product-source';
+import { getProductBadge, getProductCategoryLabel, getProductColors, isVideoMedia } from '../lib/product-source';
 
 interface Props {
   product: Product;
@@ -25,6 +25,7 @@ const title = locale === 'ar' ? product.baseNameAr || product.baseName || produc
 const imageAlt = locale === 'ar' ? product.nameAr || product.name : product.name;
 const categoryLabel = getProductCategoryLabel(product, locale);
 const badge = getProductBadge(product, locale);
+const hasVideo = product.images.some((img) => isVideoMedia(img));
 const cardImages = product.images.slice(0, 2);
 ---
 
@@ -42,18 +43,40 @@ const cardImages = product.images.slice(0, 2);
         </span>
       )}
 
+      {hasVideo && (
+        <span class="absolute right-5 top-5 z-10 flex items-center gap-1 rounded-full bg-brand-charcoal/90 px-2.5 py-1 text-[11px] font-bold text-white shadow-soft backdrop-blur">
+          <span class="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+          <span>{locale === 'ar' ? 'فيديو' : 'Vidéo'}</span>
+        </span>
+      )}
+
       <div class:list={['grid gap-2', cardImages.length > 1 ? 'grid-cols-2' : 'grid-cols-1']}>
-        {cardImages.map((image, index) => (
-          <div class="overflow-hidden rounded-[1.25rem] bg-white">
-            <img
-              src={image}
-              alt={`${imageAlt} ${index + 1}`}
-              class="aspect-[4/5] w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-              loading="lazy"
-              referrerpolicy="no-referrer"
-            />
-          </div>
-        ))}
+        {cardImages.map((media, index) => {
+          const isVid = isVideoMedia(media);
+          return (
+            <div class="overflow-hidden rounded-[1.25rem] bg-white relative aspect-[4/5]">
+              {isVid ? (
+                <video
+                  src={media}
+                  autoplay
+                  muted
+                  loop
+                  playsinline
+                  preload="metadata"
+                  class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                />
+              ) : (
+                <img
+                  src={media}
+                  alt={`${imageAlt} ${index + 1}`}
+                  class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                  loading="lazy"
+                  referrerpolicy="no-referrer"
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
 

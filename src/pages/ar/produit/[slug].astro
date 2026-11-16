@@ -2,7 +2,7 @@
 import MainLayout from '../../../layouts/MainLayout.astro';
 import ProductCard from '../../../components/ProductCard.astro';
 import OrderForm from '../../../components/OrderForm.astro';
-import { getAvailableColors, getProductColors, getProducts, getSimilarProducts, getVariants } from '../../../lib/product-source';
+import { getAvailableColors, getProductColors, getProducts, getSimilarProducts, getVariants, isVideoMedia } from '../../../lib/product-source';
 
 const productPageCopy: Record<
   string,
@@ -88,17 +88,38 @@ const schema = {
               class="product-gallery-track flex snap-x snap-mandatory overflow-x-auto scroll-smooth rounded-[1.5rem]"
               dir="ltr"
             >
-              {productImages.map((image, index) => (
-                <figure class="product-gallery-slide w-full min-w-full overflow-hidden bg-brand-pearl">
-                  <img
-                    src={image}
-                    alt={`${productName} ${index + 1}`}
-                    class="aspect-[4/5] w-full object-cover"
-                    loading={index === 0 ? 'eager' : 'lazy'}
-                    referrerpolicy="no-referrer"
-                  />
-                </figure>
-              ))}
+              {productImages.map((media, index) => {
+                const isVid = isVideoMedia(media);
+                return (
+                  <figure class="product-gallery-slide w-full min-w-full overflow-hidden bg-brand-pearl relative">
+                    {isVid ? (
+                      <div class="relative w-full aspect-[4/5] bg-black flex items-center justify-center overflow-hidden">
+                        <video
+                          src={media}
+                          controls
+                          autoplay
+                          muted
+                          loop
+                          playsinline
+                          preload="auto"
+                          class="h-full w-full object-cover"
+                        />
+                        <span class="pointer-events-none absolute top-3 right-3 rounded-full bg-brand-charcoal/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-soft backdrop-blur">
+                          فيديو 15 ثانية
+                        </span>
+                      </div>
+                    ) : (
+                      <img
+                        src={media}
+                        alt={`${productName} ${index + 1}`}
+                        class="aspect-[4/5] w-full object-cover"
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                        referrerpolicy="no-referrer"
+                      />
+                    )}
+                  </figure>
+                );
+              })}
             </div>
 
             {productImages.length > 1 && (
@@ -124,17 +145,26 @@ const schema = {
           </div>
 
           {productImages.length > 1 && (
-            <div class="mt-4 flex flex-wrap justify-center gap-2" data-gallery-dots={galleryId}>
-              {productImages.map((image, index) => (
-                <button
-                  type="button"
-                  class="product-gallery-dot h-2.5 w-2.5 rounded-full bg-brand-line"
-                  data-gallery-dot={galleryId}
-                  data-gallery-index={index}
-                  aria-label={`عرض الصورة ${index + 1}`}
-                  aria-current={index === 0 ? 'true' : 'false'}
-                ></button>
-              ))}
+            <div class="mt-4 flex flex-wrap justify-center items-center gap-2" data-gallery-dots={galleryId}>
+              {productImages.map((media, index) => {
+                const isVid = isVideoMedia(media);
+                return (
+                  <button
+                    type="button"
+                    class={`product-gallery-dot rounded-full transition-all duration-200 cursor-pointer ${
+                      isVid
+                        ? 'px-2 py-0.5 text-[10px] font-bold bg-brand-charcoal text-amber-400 flex items-center gap-1 border border-amber-400/30'
+                        : 'h-2.5 w-2.5 bg-brand-line'
+                    }`}
+                    data-gallery-dot={galleryId}
+                    data-gallery-index={index}
+                    aria-label={isVid ? `فيديو ${index + 1}` : `عرض الصورة ${index + 1}`}
+                    aria-current={index === 0 ? 'true' : 'false'}
+                  >
+                    {isVid ? '▶ 15s' : ''}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

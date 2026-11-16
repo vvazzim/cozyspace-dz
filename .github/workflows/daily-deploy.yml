@@ -1,0 +1,38 @@
+name: Déploiement Automatique Quotidien (00:00 DZ)
+
+on:
+  schedule:
+    # 23:00 UTC = 00:00 heure d'Algérie (UTC+1) chaque nuit
+    - cron: '0 23 * * *'
+  workflow_dispatch: # Permet aussi de déclencher manuellement d'un simple clic sur GitHub
+
+jobs:
+  daily-rebuild:
+    name: Rebuild et synchronisation du catalogue Cozy Space
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Déclencher le webhook de déploiement (si configuré)
+        if: env.DEPLOY_HOOK_URL != ''
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+        run: |
+          echo "Appel du Webhook de déploiement..."
+          curl -X POST -d '{}' "$DEPLOY_HOOK_URL"
+          echo "Déploiement déclenché avec succès !"
+
+      - name: Déclenchement automatique par commit de synchronisation
+        if: env.DEPLOY_HOOK_URL == ''
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+
+      - name: Commit et push pour déclencher Netlify
+        if: env.DEPLOY_HOOK_URL == ''
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore(cron): synchronisation automatique du catalogue à 00:00"
+          git push origin main
